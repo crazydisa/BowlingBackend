@@ -1,0 +1,28 @@
+﻿<Window x:Class="PdfTableReader2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PdfTableReader2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DataGrid ItemsSource="{Binding Results}" AutoGenerateColumns="False">
+        <DataGrid.Columns>
+            <DataGridTextColumn Header="Место" Binding="{Binding Place}"/>
+            <DataGridTextColumn Header="Разряд" Binding="{Binding Rank}" Width="70"/>
+            <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="200"/>
+            <DataGridTextColumn Header="Регион" Binding="{Binding Region}" Width="150"/>
+            <DataGridTextColumn Header="Игра 1" Binding="{Binding Game1}"/>
+            <DataGridTextColumn Header="Игра 2" Binding="{Binding Game2}"/>
+            <DataGridTextColumn Header="Игра 3" Binding="{Binding Game3}"/>
+            <DataGridTextColumn Header="Игра 4" Binding="{Binding Game4}"/>
+            <DataGridTextColumn Header="Игра 5" Binding="{Binding Game5}"/>
+            <DataGridTextColumn Header="Игра 6" Binding="{Binding Game6}"/>
+            <!-- Повторить для остальных столбцов -->
+            <DataGridTextColumn Header="Сумма" Binding="{Binding Total}"/>
+            <DataGridTextColumn Header="Среднее" Binding="{Binding Average}"/>
+        </DataGrid.Columns>
+    </DataGrid>
+
+
+</Window>

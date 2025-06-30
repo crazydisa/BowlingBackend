@@ -1,0 +1,33 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="GamesResultsUtils" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="NsConnectionSqlServer" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Host=localhost;Port=5433;Database=GamesResults;Username=postgres;Password=C45ddxdnme</Value>
+    </Setting>
+    <Setting Name="ImportFilePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Import\InitialData.xlsx</Value>
+    </Setting>
+    <Setting Name="DictionaryTypesSheetName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">DictionaryTypes</Value>
+    </Setting>
+    <Setting Name="DictionaryItemsSheetName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">DictionaryItems</Value>
+    </Setting>
+    <Setting Name="PirAppConnectionSqlServer" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data Source=tnnc-sapsan-db;Initial Catalog=PirApp;Integrated Security=True;</Value>
+    </Setting>
+    <Setting Name="SapsanConnectionSqlServer" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Host=tnnc-sapsan-db;Port=5432;Database=SapsanPlus;Username=SapsanPlusUser;Password=SapsanPlusUserqwe123</Value>
+    </Setting>
+    <Setting Name="ObjectTypesSheetName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ObjectTypes</Value>
+    </Setting>
+    <Setting Name="PagesSheetName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Pages</Value>
+    </Setting>
+    <Setting Name="ObjectPropertiesSheetName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ObjectProperties</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
