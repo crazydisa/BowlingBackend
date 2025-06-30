@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.FileProviders;
+using GamesResults.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,12 +34,20 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null);
 var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
-var connectionString = builder.Configuration.GetConnectionString("ConnectionSqlServer");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(connectionString));
 //builder.Services.AddDbContext<DbContext, SapsanLib.SapsanDbContext>(options => options.UseNpgsql(connectionStringSapsan));
 
+var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
+nsOptionsBuilder.UseNpgsql(connectionString);
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+var nsContext = new AppDbContext(nsOptionsBuilder.Options);
+
+var initializer = new NsDbInitializer(nsContext);
+initializer.Initialize();
 
 builder.Services.AddScoped<AppService>();
 //builder.Services.AddScoped<SapsanLib.SapsanDbContext>();
