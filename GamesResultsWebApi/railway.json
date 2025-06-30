@@ -1,9 +1,12 @@
+
 {
     "build": {
-        "builder": "docker",
-        "buildCommand": "dotnet publish -c Release -o ./publish GamesResultsWebApi"
+        "builder": "nixpacks",
+        "buildCommand": "dotnet publish ./GamesResultsWebApi/GamesResultsWebApi.csproj -c Release -o ./publish --no-self-contained",
+        "installCommand": "dotnet restore ./GamesResultsWebApi/GamesResultsWebApi.csproj"
     },
     "deploy": {
-        "startCommand": "dotnet ./publish/GamesResults.dll"
+        "startCommand": "dotnet ./publish/GamesResultsWebApi.dll",
+        "watchPaths": [ "./GamesResultsWebApi/**" ]
     }
 }
