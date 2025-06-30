@@ -1,0 +1,9 @@
+{
+    "build": {
+        "builder": "docker",
+        "buildCommand": "dotnet publish -c Release -o ./publish GamesResultsWebApi"
+    },
+    "deploy": {
+        "startCommand": "dotnet ./publish/GamesResults.dll"
+    }
+}
