@@ -31,16 +31,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(connectionString));
 
 
-//var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-//nsOptionsBuilder.UseNpgsql(connectionString);
-
-//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
-//var nsContext = new AppDbContext(nsOptionsBuilder.Options);
-
-//var initializer = new NsDbInitializer(nsContext);
-//initializer.Initialize();
 
 builder.Services.AddScoped<AppService>();
 
@@ -76,13 +67,42 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+
+//    //NsDbInitializer.Initialize(services);
+//}
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetRequiredService<AppDbContext>();
 
-    //NsDbInitializer.Initialize(services);
+        // 1. Применяем миграции
+        db.Database.Migrate();
+
+        // 2. Заполняем справочники (ваш код из консольного проекта)
+        //var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+
+        //nsOptionsBuilder.UseNpgsql(connectionString);
+
+        //AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+        //var nsContext = new AppDbContext(nsOptionsBuilder.Options);
+
+        //var initializer = new NsDbInitializer(nsContext);
+        //initializer.Initialize();
+        //var dataImporter = services.GetRequiredService<DataImporter>();
+        //await dataImporter.SeedFromExcelAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ошибка при инициализации БД");
+    }
 }
-
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
