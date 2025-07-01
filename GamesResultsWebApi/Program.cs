@@ -5,9 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.FileProviders;
 using GamesResults.Utils;
+using GamesResults.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
+var pgHost = Environment.GetEnvironmentVariable("PGHOST");
+var pgPort = Environment.GetEnvironmentVariable("PGPORT");
+var pgDataBase = Environment.GetEnvironmentVariable("PGDATABASE");
+var pgUser = Environment.GetEnvironmentVariable("PGUSER");
+var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
+var conStr = $"Server={pgHost};Port={pgPort};Database={pgDataBase};UserId={pgUser};Password={pgPassword}";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -28,7 +34,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null);
 var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql("Server=${{PGHOST}};Port=${{PGPORT}};Database=${{PGDATABASE}};UserId=${{PGUSER}};Password=${{PGPASSWORD}}"));
+builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(conStr));
 
 
 
@@ -81,7 +87,7 @@ using (var scope = app.Services.CreateScope())
     Console.WriteLine("Connection string!!: " + config.GetConnectionString("DefaultConnection"));
     Console.WriteLine("Connection string2: " + "Server=${PGHOST};Port=${PGPORT};Database=${PGDATABASE};UserId=${PGUSER};Password=${PGPASSWORD};");
     Console.WriteLine("Connection string3: " + "Server=${{PGHOST}};Port=${{PGPORT}};Database=${{PGDATABASE}};UserId=${{PGUSER}};Password=${{PGPASSWORD}}");
-    Console.WriteLine("Connection string4: " + connectionString);
+    Console.WriteLine("Connection string4: " + conStr);
     try
     {
         
