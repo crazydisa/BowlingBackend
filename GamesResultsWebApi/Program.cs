@@ -78,7 +78,7 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     var db = services.GetRequiredService<AppDbContext>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-    Console.WriteLine("Connection string: " + config.GetConnectionString("DefaultConnection"));
+    Console.WriteLine("Connection string!!: " + config.GetConnectionString("DefaultConnection"));
     try
     {
         
