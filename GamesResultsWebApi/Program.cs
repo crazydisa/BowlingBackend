@@ -28,7 +28,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null);
 var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql("Server=${Postgres.PGHOST};Port=${Postgres.PGPORT};Database=${Postgres.PGDATABASE};UserId=${Postgres.PGUSER};Password=${Postgres.PGPASSWORD};"));
+builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql("Server=${{PGHOST}};Port=${{PGPORT}};Database=${{PGDATABASE}};UserId=${{PGUSER}};Password=${{PGPASSWORD}}"));
 
 
 
@@ -79,7 +79,7 @@ using (var scope = app.Services.CreateScope())
     var db = services.GetRequiredService<AppDbContext>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
     Console.WriteLine("Connection string!!: " + config.GetConnectionString("DefaultConnection"));
-    Console.WriteLine("Connection string2: " + "Server=${Postgres.PGHOST};Port=${Postgres.PGPORT};Database=${Postgres.PGDATABASE};UserId=${Postgres.PGUSER};Password=${Postgres.PGPASSWORD};");
+    Console.WriteLine("Connection string2: " + "Server=${PGHOST};Port=${PGPORT};Database=${PGDATABASE};UserId=${PGUSER};Password=${PGPASSWORD};");
     try
     {
         
