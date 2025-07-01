@@ -80,6 +80,8 @@ using (var scope = app.Services.CreateScope())
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
     Console.WriteLine("Connection string!!: " + config.GetConnectionString("DefaultConnection"));
     Console.WriteLine("Connection string2: " + "Server=${PGHOST};Port=${PGPORT};Database=${PGDATABASE};UserId=${PGUSER};Password=${PGPASSWORD};");
+    Console.WriteLine("Connection string3: " + "Server=${{PGHOST}};Port=${{PGPORT}};Database=${{PGDATABASE}};UserId=${{PGUSER}};Password=${{PGPASSWORD}}");
+    Console.WriteLine("Connection string4: " + connectionString);
     try
     {
         
