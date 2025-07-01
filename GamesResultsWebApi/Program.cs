@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
     {
         policy.AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
+                .AllowAnyMethod();
 
 
     });
@@ -69,10 +69,10 @@ builder.Services.AddSwaggerGen(c =>
 //    }
 //}
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = options.DefaultPolicy;
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = options.DefaultPolicy;
+//});
 
 var app = builder.Build();
 
@@ -100,7 +100,6 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-app.UseAuthentication;
 //app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 app.UseMiddleware<AppErrorHandler>();
