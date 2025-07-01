@@ -10,13 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options =>
 {
-options.AddDefaultPolicy(
-    policy =>
+    options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins("http://localhost:8081") //http://localhost:8080
+        policy.AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
 
 
     });
@@ -55,26 +53,26 @@ builder.Services.AddSwaggerGen(c =>
     c.CustomSchemaIds(x => x.FullName);
 });
 
-builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
+//builder.Services.AddAuthentication(NegotiateDefaults.AuthenticationScheme).AddNegotiate();
 
-if (builder.Environment.IsDevelopment())
-{
-    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    {
-        builder.WebHost.UseHttpSys(options =>
-        {
-            options.Authentication.AllowAnonymous = true; // иначе не работает axios cors POST, PUT
-            options.Authentication.Schemes =
-                    AuthenticationSchemes.Negotiate |
-                    AuthenticationSchemes.NTLM;
-        });
-    }
-}
-
-//builder.Services.AddAuthorization(options =>
+//if (builder.Environment.IsDevelopment())
 //{
-//    options.FallbackPolicy = options.DefaultPolicy;
-//});
+//    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+//    {
+//        builder.WebHost.UseHttpSys(options =>
+//        {
+//            options.Authentication.AllowAnonymous = true; // иначе не работает axios cors POST, PUT
+//            options.Authentication.Schemes =
+//                    AuthenticationSchemes.Negotiate |
+//                    AuthenticationSchemes.NTLM;
+//        });
+//    }
+//}
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = options.DefaultPolicy;
+});
 
 var app = builder.Build();
 
@@ -102,7 +100,7 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-app.UseCors();
+app.UseAuthentication;
 //app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 app.UseMiddleware<AppErrorHandler>();
@@ -110,7 +108,7 @@ app.UseMiddleware<AppErrorHandler>();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().AllowAnonymous();
 //app.UseStaticFiles(new StaticFileOptions
 //{
 //    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(),"Uploads")),
