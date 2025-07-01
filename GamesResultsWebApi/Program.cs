@@ -38,16 +38,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(connectionString));
 //builder.Services.AddDbContext<DbContext, SapsanLib.SapsanDbContext>(options => options.UseNpgsql(connectionStringSapsan));
 
-var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
+//var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-nsOptionsBuilder.UseNpgsql(connectionString);
+//nsOptionsBuilder.UseNpgsql(connectionString);
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+//AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-var nsContext = new AppDbContext(nsOptionsBuilder.Options);
+//var nsContext = new AppDbContext(nsOptionsBuilder.Options);
 
-var initializer = new NsDbInitializer(nsContext);
-initializer.Initialize();
+//var initializer = new NsDbInitializer(nsContext);
+//initializer.Initialize();
 
 builder.Services.AddScoped<AppService>();
 //builder.Services.AddScoped<SapsanLib.SapsanDbContext>();
