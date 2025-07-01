@@ -8,11 +8,11 @@ using GamesResults.Utils;
 using GamesResults.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var pgHost = Environment.GetEnvironmentVariable("PGHOST");
-var pgPort = Environment.GetEnvironmentVariable("PGPORT");
-var pgDataBase = Environment.GetEnvironmentVariable("PGDATABASE");
-var pgUser = Environment.GetEnvironmentVariable("PGUSER");
-var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
+var pgHost = Environment.GetEnvironmentVariable("Postgres.PGHOST");
+var pgPort = Environment.GetEnvironmentVariable("Postgres.PGPORT");
+var pgDataBase = Environment.GetEnvironmentVariable("Postgres.PGDATABASE");
+var pgUser = Environment.GetEnvironmentVariable("Postgres.PGUSER");
+var pgPassword = Environment.GetEnvironmentVariable("Postgres.PGPASSWORD");
 var conStr = $"Server={pgHost};Port={pgPort};Database={pgDataBase};UserId={pgUser};Password={pgPassword}";
 builder.Services.AddCors(options =>
 {
