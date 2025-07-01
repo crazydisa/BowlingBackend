@@ -20,12 +20,7 @@ options.AddDefaultPolicy(
 
 
     });
-    //options.AddPolicy("CorsPolicy",
-    //            builder => builder
-    //                .AllowAnyMethod()
-    //                .AllowCredentials()
-    //                .SetIsOriginAllowed((host) => { return host == "file://"; })
-    //                .AllowAnyHeader());
+   
 });
 
 
@@ -36,7 +31,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(connectionString));
-//builder.Services.AddDbContext<DbContext, SapsanLib.SapsanDbContext>(options => options.UseNpgsql(connectionStringSapsan));
+
 
 //var nsOptionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
@@ -50,7 +45,7 @@ builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpg
 //initializer.Initialize();
 
 builder.Services.AddScoped<AppService>();
-//builder.Services.AddScoped<SapsanLib.SapsanDbContext>();
+
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
@@ -76,10 +71,10 @@ if (builder.Environment.IsDevelopment())
     }
 }
 
-builder.Services.AddAuthorization(options =>
-{
-    options.FallbackPolicy = options.DefaultPolicy;
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.FallbackPolicy = options.DefaultPolicy;
+//});
 
 var app = builder.Build();
 
