@@ -8,12 +8,13 @@ using GamesResults.Utils;
 using GamesResults.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-var pgHost = Environment.GetEnvironmentVariable("Postgres.PGHOST");
-var pgPort = Environment.GetEnvironmentVariable("Postgres.PGPORT");
-var pgDataBase = Environment.GetEnvironmentVariable("Postgres.PGDATABASE");
-var pgUser = Environment.GetEnvironmentVariable("Postgres.PGUSER");
-var pgPassword = Environment.GetEnvironmentVariable("Postgres.PGPASSWORD");
-var conStr = $"Server={pgHost};Port={pgPort};Database={pgDataBase};UserId={pgUser};Password={pgPassword}";
+//var pgHost = Environment.GetEnvironmentVariable("Postgres.PGHOST");
+//var pgPort = Environment.GetEnvironmentVariable("Postgres.PGPORT");
+//var pgDataBase = Environment.GetEnvironmentVariable("Postgres.PGDATABASE");
+//var pgUser = Environment.GetEnvironmentVariable("Postgres.PGUSER");
+//var pgPassword = Environment.GetEnvironmentVariable("Postgres.PGPASSWORD");
+//var conStr = $"Server={pgHost};Port={pgPort};Database={pgDataBase};UserId={pgUser};Password={pgPassword}";
+var conStr = $"Server=postgres.railway.internal;Port=5432;Database=railway;UserId=postgres;Password=TzyKfOwtBFcGoUTxzOESTiljuydGCQyc";
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
