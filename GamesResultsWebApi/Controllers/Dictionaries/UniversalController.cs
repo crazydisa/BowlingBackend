@@ -45,37 +45,37 @@ namespace GamesResults.Controllers.System
             nsContext = appContext;
             this.service = service;
         }
-        [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
-        [HttpPost("/universa/upload-data")]
-        public async Task<IActionResult> Upload()
-        {
-            try
-            {
-                var form = await this.Request.ReadFormAsync();
-                var turnir = form["turnir"].ToString();
-                var file = form.Files.GetFile("pdfFile");
-                if (file == null || file.Length == 0)
-                {
-                    return BadRequest("Файл не предоставлен");
-                }
-                if (Path.GetExtension(file.FileName).ToLower() != ".pdf")
-                {
-                    return BadRequest("Только PDF файлы разрешены");
-                }
-                var filePath = Path.Combine("Uploads", Guid.NewGuid().ToString() + ".pdf");
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-                //Здесь обрабатываю данные
-                return Ok(new { Message = "Файл и данные успешно получены" });
+        //[RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+        //[HttpPost("/universa/upload-data")]
+        //public async Task<IActionResult> Upload()
+        //{
+        //    try
+        //    {
+        //        var form = await this.Request.ReadFormAsync();
+        //        var turnir = form["turnir"].ToString();
+        //        var file = form.Files.GetFile("pdfFile");
+        //        if (file == null || file.Length == 0)
+        //        {
+        //            return BadRequest("Файл не предоставлен");
+        //        }
+        //        if (Path.GetExtension(file.FileName).ToLower() != ".pdf")
+        //        {
+        //            return BadRequest("Только PDF файлы разрешены");
+        //        }
+        //        var filePath = Path.Combine("Uploads", Guid.NewGuid().ToString() + ".pdf");
+        //        using (var stream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await file.CopyToAsync(stream);
+        //        }
+        //        Здесь обрабатываю данные
+        //        return Ok(new { Message = "Файл и данные успешно получены" });
 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Ошибка: {ex.Message}");
-            }
-        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, $"Ошибка: {ex.Message}");
+        //    }
+        //}
 
 
 
