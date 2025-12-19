@@ -1,11 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
-	  <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <Nullable>enable</Nullable>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net6.0;net6.0-windows</TargetFrameworks>
+		<!-- Условные ссылки на Windows-специфичные пакеты -->
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0-windows'">
+		<!-- Windows-специфичные зависимости -->
+		<!-- <PackageReference Include="System.Windows.Forms" Version="6.0.0" />-->
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="PdfPig" Version="0.1.10" />

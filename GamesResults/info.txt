@@ -1,0 +1,12 @@
+dotnet ef migrations add bytea --context AppDbContext --project GamesResults --startup-project GamesResultsWebApi          
+ To undo this action
+ dotnet ef migrations remove --context AppDbContext --p roject GamesResults --startup-project GamesResultsWebApi
+ dotnet ef database update --context AppDbContext --project GamesResults --startup-project GamesResultsWebApi
+ # Удалить БД
+dotnet ef database drop --context AppDbContext --project GamesResults --startup-project GamesResultsWebApi --force
+
+# Создать заново
+dotnet ef database update --context AppDbContext --project GamesResults --startup-project GamesResultsWebApi 
+
+#новая
+dotnet ef migrations add InitialCreate --context AppDbContext --project GamesResults --startup-project GamesResultsWebApi 

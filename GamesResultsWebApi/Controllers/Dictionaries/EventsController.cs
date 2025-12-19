@@ -1,24 +1,23 @@
-﻿using GamesResults;
-using GamesResults.Models;
+﻿
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace GamesResults.Controllers.System
 {
     [ApiController]
-    public class EventsController : ControllerBase
+    public class TournamentsController : ControllerBase
     {
         private readonly AppService service;
 
-        public EventsController(AppService service)
+        public TournamentsController(AppService service)
         {
             this.service = service;
         }
 
-        [HttpGet("/dictionaries/Events")]
-        public async Task<ActionResult<IEnumerable<Models.Bowling.Event>>> GetEvents()
+        [HttpGet("/dictionaries/Tournaments")]
+        public async Task<ActionResult<IEnumerable<Models.Bowling.Tournament>>> GetTournaments()
         {
-            return await service.GetAllByQueryAsync(service.Context.Events
+            return await service.GetAllByQueryAsync(service.Context.Tournaments
                 .OrderBy(o => o.Title));
         }
     }

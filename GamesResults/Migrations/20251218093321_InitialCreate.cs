@@ -13,11 +13,11 @@ namespace GamesResults.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "dbo");
+                name: "Bowling");
 
             migrationBuilder.CreateTable(
                 name: "Roles",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -35,7 +35,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -86,7 +86,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "UsersRoles",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     RoleId = table.Column<int>(type: "integer", nullable: false),
@@ -98,21 +98,21 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_UsersRoles_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UsersRoles_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Actions",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -131,7 +131,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "ActionsRoles",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     ActionId = table.Column<int>(type: "integer", nullable: false),
@@ -143,13 +143,13 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_ActionsRoles_Actions_ActionId",
                         column: x => x.ActionId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Actions",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ActionsRoles_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -157,7 +157,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Bowlings",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -169,7 +169,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Cities",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -182,7 +182,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Components",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -194,14 +194,14 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Components_Actions_LoadActionId",
                         column: x => x.LoadActionId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Actions",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Pages",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -213,7 +213,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Pages_Components_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Components",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -221,7 +221,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Containers",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -234,7 +234,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DictionaryTypes",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -245,7 +245,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_DictionaryTypes_Containers_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Containers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -253,7 +253,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "ObjectTypes",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -270,14 +270,14 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_ObjectTypes_Containers_RootContainerId",
                         column: x => x.RootContainerId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Containers",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "System",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -289,7 +289,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_System_Containers_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Containers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -297,7 +297,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "ObjectProperties",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -338,14 +338,14 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_ObjectProperties_ObjectTypes_ObjectTypeId",
                         column: x => x.ObjectTypeId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "ObjectTypes",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Objects",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -372,38 +372,38 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Objects_ObjectTypes_TypeId",
                         column: x => x.TypeId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "ObjectTypes",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Objects_Objects_ParentId",
                         column: x => x.ParentId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Objects_Users_AuthorId",
                         column: x => x.AuthorId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Objects_Users_DeleterId",
                         column: x => x.DeleterId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Objects_Users_EditorId",
                         column: x => x.EditorId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "ObjectPropertiesEditRoles",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     PropertyId = table.Column<int>(type: "integer", nullable: false),
@@ -415,13 +415,13 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_ObjectPropertiesEditRoles_ObjectProperties_PropertyId",
                         column: x => x.PropertyId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "ObjectProperties",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_ObjectPropertiesEditRoles_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -429,7 +429,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DictionaryItems",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
@@ -443,13 +443,13 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_DictionaryItems_DictionaryTypes_DictionaryTypeId",
                         column: x => x.DictionaryTypeId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "DictionaryTypes",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_DictionaryItems_Objects_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -457,7 +457,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Logs",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -475,31 +475,33 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Logs_Actions_ActionId",
                         column: x => x.ActionId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Actions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Logs_Objects_ObjectId",
                         column: x => x.ObjectId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Logs_Users_UserId1",
                         column: x => x.UserId1,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Teams",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    GenderTeam = table.Column<int>(type: "integer", nullable: false),
                     SportType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
@@ -508,7 +510,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Teams_Objects_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -516,7 +518,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Disciplines",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -527,7 +529,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Disciplines_DictionaryItems_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "DictionaryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -535,7 +537,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Districts",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -546,7 +548,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Districts_DictionaryItems_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "DictionaryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -554,7 +556,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Oils",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -565,26 +567,7 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_Oils_DictionaryItems_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
-                        principalTable: "DictionaryItems",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Ranks",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Ranks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Ranks_DictionaryItems_Id",
-                        column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "DictionaryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -592,7 +575,7 @@ namespace GamesResults.Migrations
 
             migrationBuilder.CreateTable(
                 name: "LogDetails",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -606,189 +589,138 @@ namespace GamesResults.Migrations
                     table.ForeignKey(
                         name: "FK_LogDetails_Logs_LogId",
                         column: x => x.LogId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Logs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Events",
-                schema: "dbo",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: true),
-                    EventType = table.Column<string>(type: "text", nullable: false),
-                    EventDate = table.Column<DateTime>(type: "date", nullable: false),
-                    OilId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Events", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Events_Objects_Id",
-                        column: x => x.Id,
-                        principalSchema: "dbo",
-                        principalTable: "Objects",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Events_Oils_OilId",
-                        column: x => x.OilId,
-                        principalSchema: "dbo",
-                        principalTable: "Oils",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Players",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     BirthDate = table.Column<DateTime>(type: "date", nullable: true),
                     Country = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Gender = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false, defaultValue: "Unknown"),
                     CityId = table.Column<long>(type: "bigint", nullable: true),
-                    RankId = table.Column<long>(type: "bigint", nullable: true)
+                    DistrictId = table.Column<long>(type: "bigint", nullable: true),
+                    PlayerRatingId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Players", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Players_Cities_CityId",
+                        name: "FK_Players_City",
                         column: x => x.CityId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Cities",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Players_DictionaryItems_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "DictionaryItems",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Players_Ranks_RankId",
-                        column: x => x.RankId,
-                        principalSchema: "dbo",
-                        principalTable: "Ranks",
-                        principalColumn: "Id");
+                        name: "FK_Players_Districts_DistrictId",
+                        column: x => x.DistrictId,
+                        principalSchema: "Bowling",
+                        principalTable: "Districts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
-                name: "EventTeamMembers",
-                schema: "dbo",
+                name: "Tournaments",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
-                    EventId = table.Column<long>(type: "bigint", nullable: false),
-                    TeamId = table.Column<long>(type: "bigint", nullable: false),
-                    PlayerId = table.Column<long>(type: "bigint", nullable: false)
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "date", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    OilId = table.Column<long>(type: "bigint", nullable: true),
+                    CityId = table.Column<long>(type: "bigint", nullable: true),
+                    TournamentType = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false, defaultValue: "Unknown"),
+                    RatingsUpdated = table.Column<bool>(type: "boolean", nullable: false),
+                    RatingsUpdatedDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventTeamMembers", x => x.Id);
+                    table.PrimaryKey("PK_Tournaments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EventTeamMembers_Events_EventId",
-                        column: x => x.EventId,
-                        principalSchema: "dbo",
-                        principalTable: "Events",
+                        name: "FK_Tournaments_Cities_CityId",
+                        column: x => x.CityId,
+                        principalSchema: "Bowling",
+                        principalTable: "Cities",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_EventTeamMembers_Objects_Id",
+                        name: "FK_Tournaments_Objects_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_EventTeamMembers_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalSchema: "dbo",
-                        principalTable: "Players",
+                        name: "FK_Tournaments_Oils_OilId",
+                        column: x => x.OilId,
+                        principalSchema: "Bowling",
+                        principalTable: "Oils",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventTeamMembers_Teams_TeamId",
-                        column: x => x.TeamId,
-                        principalSchema: "dbo",
-                        principalTable: "Teams",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Participations",
-                schema: "dbo",
+                name: "PlayerRatings",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
-                    EventId = table.Column<long>(type: "bigint", nullable: false),
-                    PlayerId = table.Column<long>(type: "bigint", nullable: true),
-                    TeamId = table.Column<long>(type: "bigint", nullable: true),
-                    BowlingId = table.Column<long>(type: "bigint", nullable: false),
-                    Result = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Game1 = table.Column<int>(type: "integer", nullable: true),
-                    Game2 = table.Column<int>(type: "integer", nullable: true),
-                    Game3 = table.Column<int>(type: "integer", nullable: true),
-                    Game4 = table.Column<int>(type: "integer", nullable: true),
-                    Game5 = table.Column<int>(type: "integer", nullable: true),
-                    Game6 = table.Column<int>(type: "integer", nullable: true),
-                    Summ = table.Column<int>(type: "integer", nullable: true),
-                    Average = table.Column<double>(type: "double precision", nullable: true)
+                    PlayerId = table.Column<long>(type: "bigint", nullable: false),
+                    RatingHistoryId = table.Column<long>(type: "bigint", nullable: false),
+                    Rating = table.Column<int>(type: "integer", nullable: false, defaultValue: 1500),
+                    PeakRating = table.Column<int>(type: "integer", nullable: false, defaultValue: 1500),
+                    TournamentCount = table.Column<int>(type: "integer", nullable: false),
+                    AveragePlace = table.Column<double>(type: "numeric(5,2)", nullable: false),
+                    Top3Percentage = table.Column<double>(type: "double precision", nullable: false),
+                    Top10Percentage = table.Column<double>(type: "double precision", nullable: false),
+                    TotalGames = table.Column<int>(type: "integer", nullable: false),
+                    TotalPins = table.Column<int>(type: "integer", nullable: false),
+                    AverageScore = table.Column<double>(type: "numeric(6,2)", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Participations", x => x.Id);
+                    table.PrimaryKey("PK_PlayerRatings", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Participations_Bowlings_BowlingId",
-                        column: x => x.BowlingId,
-                        principalSchema: "dbo",
-                        principalTable: "Bowlings",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Participations_Events_EventId",
-                        column: x => x.EventId,
-                        principalSchema: "dbo",
-                        principalTable: "Events",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Participations_Objects_Id",
+                        name: "FK_PlayerRatings_Objects_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Participations_Players_PlayerId",
+                        name: "FK_PlayerRatings_Players_PlayerId",
                         column: x => x.PlayerId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Players",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Participations_Teams_TeamId",
-                        column: x => x.TeamId,
-                        principalSchema: "dbo",
-                        principalTable: "Teams",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "TeamMembers",
-                schema: "dbo",
+                schema: "Bowling",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false),
                     TeamId = table.Column<long>(type: "bigint", nullable: false),
                     PlayerId = table.Column<long>(type: "bigint", nullable: false),
-                    CityId = table.Column<long>(type: "bigint", nullable: true),
-                    RankId = table.Column<long>(type: "bigint", nullable: true),
                     StartDate = table.Column<DateTime>(type: "date", nullable: false),
                     EndDate = table.Column<DateTime>(type: "date", nullable: true)
                 },
@@ -796,355 +728,518 @@ namespace GamesResults.Migrations
                 {
                     table.PrimaryKey("PK_TeamMembers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TeamMembers_Cities_CityId",
-                        column: x => x.CityId,
-                        principalSchema: "dbo",
-                        principalTable: "Cities",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_TeamMembers_Objects_Id",
                         column: x => x.Id,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Objects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TeamMembers_Players_PlayerId",
                         column: x => x.PlayerId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Players",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TeamMembers_Ranks_RankId",
-                        column: x => x.RankId,
-                        principalSchema: "dbo",
-                        principalTable: "Ranks",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_TeamMembers_Teams_TeamId",
                         column: x => x.TeamId,
-                        principalSchema: "dbo",
+                        principalSchema: "Bowling",
                         principalTable: "Teams",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Results",
+                schema: "Bowling",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    TournamentId = table.Column<long>(type: "bigint", nullable: false),
+                    PlayerId = table.Column<long>(type: "bigint", nullable: false),
+                    TeamId = table.Column<long>(type: "bigint", nullable: true),
+                    BowlingId = table.Column<long>(type: "bigint", nullable: true),
+                    Place = table.Column<int>(type: "integer", nullable: false),
+                    Rank = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    Region = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    IsTeam = table.Column<bool>(type: "boolean", nullable: false),
+                    TeamName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    Game1 = table.Column<int>(type: "integer", nullable: false),
+                    Game2 = table.Column<int>(type: "integer", nullable: false),
+                    Game3 = table.Column<int>(type: "integer", nullable: false),
+                    Game4 = table.Column<int>(type: "integer", nullable: false),
+                    Game5 = table.Column<int>(type: "integer", nullable: false),
+                    Game6 = table.Column<int>(type: "integer", nullable: false),
+                    Summ = table.Column<int>(type: "integer", nullable: false),
+                    OriginalTotal = table.Column<int>(type: "integer", nullable: true),
+                    OriginalAverage = table.Column<double>(type: "double precision", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Results", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Results_Bowlings_BowlingId",
+                        column: x => x.BowlingId,
+                        principalSchema: "Bowling",
+                        principalTable: "Bowlings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Results_Objects_Id",
+                        column: x => x.Id,
+                        principalSchema: "Bowling",
+                        principalTable: "Objects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Results_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalSchema: "Bowling",
+                        principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Results_Teams_TeamId",
+                        column: x => x.TeamId,
+                        principalSchema: "Bowling",
+                        principalTable: "Teams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "FK_Results_Tournaments_TournamentId",
+                        column: x => x.TournamentId,
+                        principalSchema: "Bowling",
+                        principalTable: "Tournaments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TournamentDocuments",
+                schema: "Bowling",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    OriginalFileName = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    StoredFileName = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    ContentType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    FileSize = table.Column<long>(type: "bigint", nullable: false),
+                    FileData = table.Column<byte[]>(type: "bytea", nullable: false),
+                    FilePath = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
+                    DocumentType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    FileHash = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    Md5Hash = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    TournamentId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TournamentDocuments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TournamentDocuments_Objects_Id",
+                        column: x => x.Id,
+                        principalSchema: "Bowling",
+                        principalTable: "Objects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_TournamentDocuments_Tournaments_TournamentId",
+                        column: x => x.TournamentId,
+                        principalSchema: "Bowling",
+                        principalTable: "Tournaments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RatingHistories",
+                schema: "Bowling",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false),
+                    PlayerRatingId = table.Column<long>(type: "bigint", nullable: false),
+                    TournamentId = table.Column<long>(type: "bigint", nullable: false),
+                    OldRating = table.Column<int>(type: "integer", nullable: false),
+                    NewRating = table.Column<int>(type: "integer", nullable: false),
+                    RatingChange = table.Column<int>(type: "integer", nullable: false),
+                    ChangeDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    ChangeReason = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RatingHistories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RatingHistories_Objects_Id",
+                        column: x => x.Id,
+                        principalSchema: "Bowling",
+                        principalTable: "Objects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RatingHistories_PlayerRatings_PlayerRatingId",
+                        column: x => x.PlayerRatingId,
+                        principalSchema: "Bowling",
+                        principalTable: "PlayerRatings",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RatingHistories_Tournaments_TournamentId",
+                        column: x => x.TournamentId,
+                        principalSchema: "Bowling",
+                        principalTable: "Tournaments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Actions_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Actions",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Actions_ObjectTypeId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Actions",
                 column: "ObjectTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Actions_ObjectTypeId_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Actions",
                 columns: new[] { "ObjectTypeId", "Name" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Actions_Title",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Actions",
                 column: "Title",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ActionsRoles_RoleId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ActionsRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cities_DistrictId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Cities",
                 column: "DistrictId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Components_LoadActionId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Components",
                 column: "LoadActionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Containers_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Containers",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_DictionaryItems_DictionaryTypeId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "DictionaryItems",
                 column: "DictionaryTypeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_OilId",
-                schema: "dbo",
-                table: "Events",
-                column: "OilId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventTeamMembers_EventId",
-                schema: "dbo",
-                table: "EventTeamMembers",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventTeamMembers_PlayerId",
-                schema: "dbo",
-                table: "EventTeamMembers",
-                column: "PlayerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_EventTeamMembers_TeamId",
-                schema: "dbo",
-                table: "EventTeamMembers",
-                column: "TeamId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_LogDetails_LogId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "LogDetails",
                 column: "LogId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Logs_ActionId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Logs",
                 column: "ActionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Logs_ObjectId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Logs",
                 column: "ObjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Logs_UserId1",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Logs",
                 column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectProperties_ObjectTypeId_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectProperties",
                 columns: new[] { "ObjectTypeId", "Name" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectProperties_ObjectTypeId_Title_GroupTitle_SubGroupTitle",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectProperties",
                 columns: new[] { "ObjectTypeId", "Title", "GroupTitle", "SubGroupTitle" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectPropertiesEditRoles_RoleId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectPropertiesEditRoles",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Objects_AuthorId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects",
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Objects_DeleterId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects",
                 column: "DeleterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Objects_EditorId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects",
                 column: "EditorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Objects_ParentId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects",
                 column: "ParentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Objects_TypeId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects",
                 column: "TypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectTypes_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectTypes",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectTypes_RootContainerId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectTypes",
                 column: "RootContainerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ObjectTypes_Title",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "ObjectTypes",
                 column: "Title",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Participations_BowlingId",
-                schema: "dbo",
-                table: "Participations",
-                column: "BowlingId");
+                name: "IX_PlayerRatings_PlayerId",
+                schema: "Bowling",
+                table: "PlayerRatings",
+                column: "PlayerId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Participations_EventId",
-                schema: "dbo",
-                table: "Participations",
-                column: "EventId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Participations_PlayerId",
-                schema: "dbo",
-                table: "Participations",
-                column: "PlayerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Participations_TeamId",
-                schema: "dbo",
-                table: "Participations",
-                column: "TeamId");
+                name: "IX_PlayerRatings_Rating",
+                schema: "Bowling",
+                table: "PlayerRatings",
+                column: "Rating");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Players_CityId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Players",
                 column: "CityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Players_RankId",
-                schema: "dbo",
+                name: "IX_Players_DistrictId",
+                schema: "Bowling",
                 table: "Players",
-                column: "RankId");
+                column: "DistrictId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RatingHistories_Player_Date",
+                schema: "Bowling",
+                table: "RatingHistories",
+                columns: new[] { "PlayerRatingId", "ChangeDate" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RatingHistories_TournamentId",
+                schema: "Bowling",
+                table: "RatingHistories",
+                column: "TournamentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_BowlingId",
+                schema: "Bowling",
+                table: "Results",
+                column: "BowlingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Results_TeamId",
+                schema: "Bowling",
+                table: "Results",
+                column: "TeamId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TournamentResults_Place",
+                schema: "Bowling",
+                table: "Results",
+                column: "Place");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TournamentResults_PlayerId",
+                schema: "Bowling",
+                table: "Results",
+                column: "PlayerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TournamentResults_Tournament_Place",
+                schema: "Bowling",
+                table: "Results",
+                columns: new[] { "TournamentId", "Place" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TournamentResults_TournamentId",
+                schema: "Bowling",
+                table: "Results",
+                column: "TournamentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Roles",
                 column: "Name",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Roles_Title",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Roles",
                 column: "Title",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_TeamMembers_CityId",
-                schema: "dbo",
-                table: "TeamMembers",
-                column: "CityId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TeamMembers_PlayerId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "TeamMembers",
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TeamMembers_RankId",
-                schema: "dbo",
-                table: "TeamMembers",
-                column: "RankId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TeamMembers_TeamId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "TeamMembers",
                 column: "TeamId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Teams_Name",
+                schema: "Bowling",
+                table: "Teams",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TournamentDocuments_TournamentId",
+                schema: "Bowling",
+                table: "TournamentDocuments",
+                column: "TournamentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tournaments_CityId",
+                schema: "Bowling",
+                table: "Tournaments",
+                column: "CityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tournaments_OilId",
+                schema: "Bowling",
+                table: "Tournaments",
+                column: "OilId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tournaments_StartDate",
+                schema: "Bowling",
+                table: "Tournaments",
+                column: "StartDate");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_name",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Users",
                 column: "name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UsersRoles_UserId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "UsersRoles",
                 column: "UserId");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Actions_ObjectTypes_ObjectTypeId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Actions",
                 column: "ObjectTypeId",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "ObjectTypes",
                 principalColumn: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Bowlings_DictionaryItems_Id",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Bowlings",
                 column: "Id",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "DictionaryItems",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Cities_DictionaryItems_Id",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Cities",
                 column: "Id",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "DictionaryItems",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Cities_Districts_DistrictId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Cities",
                 column: "DistrictId",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "Districts",
-                principalColumn: "Id");
+                principalColumn: "Id",
+                onDelete: ReferentialAction.SetNull);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Components_Containers_Id",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Components",
                 column: "Id",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "Containers",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Containers_Objects_Id",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Containers",
                 column: "Id",
-                principalSchema: "dbo",
+                principalSchema: "Bowling",
                 principalTable: "Objects",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
@@ -1155,124 +1250,128 @@ namespace GamesResults.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_Objects_ObjectTypes_TypeId",
-                schema: "dbo",
+                schema: "Bowling",
                 table: "Objects");
 
             migrationBuilder.DropTable(
                 name: "ActionsRoles",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Disciplines",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "EventTeamMembers",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "LogDetails",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "ObjectPropertiesEditRoles",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Pages",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
-                name: "Participations",
-                schema: "dbo");
+                name: "RatingHistories",
+                schema: "Bowling");
+
+            migrationBuilder.DropTable(
+                name: "Results",
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "System",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "TeamMembers",
-                schema: "dbo");
+                schema: "Bowling");
+
+            migrationBuilder.DropTable(
+                name: "TournamentDocuments",
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "UsersRoles",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Logs",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "ObjectProperties",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Components",
-                schema: "dbo");
+                schema: "Bowling");
+
+            migrationBuilder.DropTable(
+                name: "PlayerRatings",
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Bowlings",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "Events",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "Players",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Teams",
-                schema: "dbo");
+                schema: "Bowling");
+
+            migrationBuilder.DropTable(
+                name: "Tournaments",
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Roles",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Actions",
-                schema: "dbo");
+                schema: "Bowling");
+
+            migrationBuilder.DropTable(
+                name: "Players",
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Oils",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Cities",
-                schema: "dbo");
-
-            migrationBuilder.DropTable(
-                name: "Ranks",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Districts",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "DictionaryItems",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "DictionaryTypes",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "ObjectTypes",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Containers",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Objects",
-                schema: "dbo");
+                schema: "Bowling");
 
             migrationBuilder.DropTable(
                 name: "Users",
-                schema: "dbo");
+                schema: "Bowling");
         }
     }
 }

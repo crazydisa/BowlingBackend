@@ -1,0 +1,35 @@
+public partial class CreateRatingView : Migration
+{
+    protected override void Up(MigrationBuilder migrationBuilder)
+    {
+        migrationBuilder.Sql(@"
+            CREATE VIEW [Bowling].[vw_PlayerRankings] AS
+            SELECT 
+                ROW_NUMBER() OVER (ORDER BY pr.Rating DESC, pr.TournamentCount DESC) AS Rank,
+                p.Id AS PlayerId,
+                p.Name AS PlayerName,
+                pr.Rating,
+                pr.TournamentCount,
+                pr.AveragePlace,
+                pr.PeakRating,
+                pr.Top3Percentage,
+                pr.Top10Percentage,
+                pr.AverageScore,
+                pr.LastUpdated,
+                CASE 
+                    WHEN pr.Rating >= 2000 THEN 'Мастер'
+                    WHEN pr.Rating >= 1800 THEN 'Эксперт'
+                    WHEN pr.Rating >= 1600 THEN 'Продвинутый'
+                    WHEN pr.Rating >= 1400 THEN 'Средний'
+                    ELSE 'Начинающий'
+                END AS RatingCategory,
+                (SELECT MAX(t.EndDate) 
+                 FROM Bowling.TournamentResults tr
+                 JOIN Bowling.Tournaments t ON tr.TournamentId = t.Id
+                 WHERE tr.PlayerId = p.Id) AS LastTournamentDate
+            FROM Bowling.PlayerRatings pr
+            JOIN Bowling.Players p ON pr.PlayerId = p.Id
+            WHERE pr.TournamentCount >= 3
+        ");
+    }
+}

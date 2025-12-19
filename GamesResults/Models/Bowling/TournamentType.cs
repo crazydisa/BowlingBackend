@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace GamesResults.Models.Bowling
 {
-    public class Discipline: DictionaryItem
+    public enum TournamentType
     {
+        Individual = 0,
+        Team = 1,
+        Mixed = 2,
+        Unknown = 3,
     }
 }

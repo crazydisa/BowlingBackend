@@ -8,7 +8,7 @@
         public DictionaryType? DictionaryType { get; set; }
         public long? DictionaryTypeId { get; set; }
         [displayExpr]
-        public string? Name { get; set; } = null!;
+        public string Name { get; set; } = string.Empty;
         public bool? IsNotUsed { get; set; }
     }
 }

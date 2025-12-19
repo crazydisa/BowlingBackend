@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.2.32616.157
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11304.174 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamesResults", "GamesResults\GamesResults.csproj", "{14ECBB91-27A3-41EF-A61F-DE5C7600AE8E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GamesResultsWebApi", "GamesResultsWebApi\GamesResultsWebApi.csproj", "{27AC641A-1BC2-4F5A-8BB9-BFC32C4AC504}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GamesResultsUtils", "GamesResultsUtils\GamesResultsUtils.csproj", "{92231E0A-D6EF-740A-1A49-13351194E6F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfTableReaderWPF", "PdfTableReader2\PdfTableReaderWPF.csproj", "{CA48F3B9-1893-794F-775C-D19787E8AB3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdfTableReaderDll", "PdfTableReaderDll\PdfTableReaderDll.csproj", "{1C350D4E-9764-644A-677E-4A6863DD6DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{27AC641A-1BC2-4F5A-8BB9-BFC32C4AC504}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27AC641A-1BC2-4F5A-8BB9-BFC32C4AC504}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27AC641A-1BC2-4F5A-8BB9-BFC32C4AC504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92231E0A-D6EF-740A-1A49-13351194E6F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92231E0A-D6EF-740A-1A49-13351194E6F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92231E0A-D6EF-740A-1A49-13351194E6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92231E0A-D6EF-740A-1A49-13351194E6F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA48F3B9-1893-794F-775C-D19787E8AB3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA48F3B9-1893-794F-775C-D19787E8AB3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA48F3B9-1893-794F-775C-D19787E8AB3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA48F3B9-1893-794F-775C-D19787E8AB3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C350D4E-9764-644A-677E-4A6863DD6DD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C350D4E-9764-644A-677E-4A6863DD6DD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C350D4E-9764-644A-677E-4A6863DD6DD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C350D4E-9764-644A-677E-4A6863DD6DD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

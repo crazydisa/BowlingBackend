@@ -20,7 +20,7 @@ namespace PirAppBp.Utils
                     RedirectStandardError = true,
                     WorkingDirectory = workingDirectory
                 },
-                EnableRaisingEvents = true
+                EnableRaisingEvents = true,
             };
 
             process.Exited += (sender, args) =>

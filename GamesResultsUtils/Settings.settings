@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="NsConnectionSqlServer" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">Host=localhost;Port=5433;Database=GamesResults;Username=postgres;Password=C45ddxdnme</Value>
+      <Value Profile="(Default)">Host=localhost;Port=5432;Database=bowling;Username=postgres;Password=postgres</Value>
     </Setting>
     <Setting Name="ImportFilePath" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Import\InitialData.xlsx</Value>

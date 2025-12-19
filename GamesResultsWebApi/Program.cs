@@ -1,11 +1,12 @@
 using GamesResults;
+using GamesResults.Interfaces;
+using GamesResults.Models;
+using GamesResults.Utils;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.FileProviders;
-using GamesResults.Utils;
-using GamesResults.Models;
+using System.Runtime.InteropServices;
 
 var builder = WebApplication.CreateBuilder(args);
 //var pgHost = Environment.GetEnvironmentVariable("Postgres.PGHOST");
@@ -14,15 +15,19 @@ var builder = WebApplication.CreateBuilder(args);
 //var pgUser = Environment.GetEnvironmentVariable("Postgres.PGUSER");
 //var pgPassword = Environment.GetEnvironmentVariable("Postgres.PGPASSWORD");
 //var conStr = $"Server={pgHost};Port={pgPort};Database={pgDataBase};UserId={pgUser};Password={pgPassword}";
-var conStr = $"Server=postgres.railway.internal;Port=5432;Database=railway;UserId=postgres;Password=TzyKfOwtBFcGoUTxzOESTiljuydGCQyc";
+//var conStr = $"Server=postgres.railway.internal;Port=5432;Database=railway;UserId=postgres;Password=TzyKfOwtBFcGoUTxzOESTiljuydGCQyc";
+var conStr = $"Server=localhost;Port=5432;Database=bowling;UserId=postgres;Password=postgres";
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("AllowSpecificOrigin",policy => //AddDefaultPolicy
     {
-        policy.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-
+        //policy.AllowAnyOrigin()
+        //        .AllowAnyHeader()
+        //        .AllowAnyMethod();
+        policy.WithOrigins("http://localhost:8080");  // Разрешённый источник
+        policy.AllowAnyMethod();                           // Любые методы (GET, POST и т. д.)
+        policy.AllowAnyHeader();                         // Любые заголовки
+            policy.AllowCredentials();
 
     });
    
@@ -33,14 +38,26 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.PropertyNamingPolicy = null);
-var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+//var connectionStringSapsan = builder.Configuration.GetConnectionString("SapsanConnectionString");
+//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpgsql(conStr));
 
 
 
 
 builder.Services.AddScoped<AppService>();
+// Регистрация сервисов
+builder.Services.AddScoped<IRatingService, EloRatingService>();
+
+// Настройка авторизации (если еще не добавлено)
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy("AdminOnly", policy =>
+//        policy.RequireRole("Admin", "SuperAdmin"));
+
+//    options.AddPolicy("OrganizerAccess", policy =>
+//        policy.RequireRole("Admin", "SuperAdmin", "Organizer"));
+//});
 
 builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 
@@ -133,7 +150,7 @@ app.UseSwaggerUI();
 
 app.UseRouting();
 
-//app.UseCors("CorsPolicy");
+app.UseCors("AllowSpecificOrigin"); //убрать, только локально
 app.UseHttpsRedirection();
 app.UseMiddleware<AppErrorHandler>();
 

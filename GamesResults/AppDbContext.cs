@@ -1,19 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections;
-using System.Reflection;
-using System.Linq.Dynamic.Core;
+﻿using GamesResults.Models.Bowling;
+using GamesResults.Utils;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 //using Microsoft.EntityFrameworkCore.Metadata;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using System.Collections;
 using System.Data;
-using System.Xml.Linq;
+using System.Linq.Dynamic.Core;
+using System.Reflection;
+
 //using PirAppBpLib.Models;
 
 namespace GamesResults
 {
     public class AppDbContext : DbContext
     {
-        const string dbSchema = "dbo";
+        const string dbSchema = "Bowling";
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -36,19 +38,23 @@ namespace GamesResults
         public DbSet<Models.LogDetail> LogDetails { get; set; } = null!;
 
         //bowling class
-        public DbSet<Models.Bowling.Bowling> Bowlings { get; set; } = null!;
-        public DbSet<Models.Bowling.City> Cities { get; set; } = null!;
-        public DbSet<Models.Bowling.Discipline> Disciplines { get; set; } = null!;
-        public DbSet<Models.Bowling.District> Districts { get; set; } = null!;
-        public DbSet<Models.Bowling.Event> Events { get; set; } = null!;
-        public DbSet<Models.Bowling.EventTeamMember> EventTeamMembers { get; set; } = null!;
-        public DbSet<Models.Bowling.Oil> Oils { get; set; } = null!;
-        public DbSet<Models.Bowling.Participation> Participations { get; set; } = null!;
-        public DbSet<Models.Bowling.Player> Players { get; set; } = null!;
-        public DbSet<Models.Bowling.Rank> Ranks { get; set; } = null!;
-        public DbSet<Models.Bowling.Team> Teams { get; set; } = null!;
-        public DbSet<Models.Bowling.TeamMember> TeamMembers { get; set; } = null!;
+        // DbSet'ы для каждой сущности
+        public DbSet<Bowling> BowlingCenters { get; set; }
+        public DbSet<City> Cities { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<TournamentDocument> TournamentDocuments { get; set; }
+        public DbSet<Oil> Oils { get; set; }
+        public DbSet<Player> Players { get; set; }
+        public DbSet<PlayerRating> PlayerRatings { get; set; }
+        public DbSet<RatingHistory> RatingHistories { get; set; }
+        public DbSet<Team> Teams { get; set; }
+        public DbSet<TeamMember> TeamMembers { get; set; }
+        public DbSet<Tournament> Tournaments { get; set; }
 
+        // DbSet'ы для наследования (базовый и производные)
+        public DbSet<BaseTournamentResult> TournamentResults { get; set; }
+        public DbSet<IndividualResult> IndividualResults { get; set; }
+        public DbSet<TeamResult> TeamResults { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Models.Object>().UseTptMappingStrategy();
@@ -408,149 +414,460 @@ namespace GamesResults
             });
 
             //bowling class
-            modelBuilder.Entity<Models.Bowling.Player> (builder =>
+            modelBuilder.Entity<Player>(builder =>
             {
                 builder.ToTable("Players", dbSchema);
+
+                // Свойства
+                builder.Property(p => p.FullName)
+                    .IsRequired()
+                    .HasMaxLength(150);
                 builder.Property(a => a.BirthDate).HasColumnType("date");
                 builder.Property(a => a.Country).HasMaxLength(100);
+                builder.Property(p => p.Email)
+                    .HasMaxLength(100);
+                builder.Property(p => p.Phone)
+                    .HasMaxLength(20);
 
-                // Связи
-                builder.HasMany(a => a.TeamMembers)
-                    .WithOne(tm => tm.Player)
-                    .HasForeignKey(tm => tm.PlayerId);
+                // Добавляем конфигурацию для свойства Gender
+                builder.Property(a => a.Gender)
+                    .HasDefaultValue(Gender.Unknown) // Значение по умолчанию
+                    .HasConversion(
+                        v => v.ToString(),           // Конвертация в строку для хранения в БД
+                        v => (Gender)Enum.Parse(typeof(Gender), v))
+                    .HasMaxLength(10);
+                // Индексы
+                builder.HasIndex(p => p.FullName)
+                    .HasDatabaseName("IX_Players_FullName");
 
-                builder.HasMany(a => a.IndividualParticipations)
-                    .WithOne(p => p.Player)
-                    .HasForeignKey(p => p.PlayerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                builder.HasIndex(p => p.Email)
+                    .HasDatabaseName("IX_Players_Email")
+                    .IsUnique()
+                    .HasFilter("[Email] IS NOT NULL");
+                builder.HasIndex(p => p.DistrictId)
+                    .HasDatabaseName("IX_Players_DistrictId");
+                builder.HasIndex(p => new { p.Gender, p.BirthDate })
+                    .HasDatabaseName("IX_Players_Gender_BirthDate");
 
-                builder.HasMany(a => a.EventTeamMembers)
-                    .WithOne(etm => etm.Player)
-                    .HasForeignKey(etm => etm.PlayerId);
+                // 1. Связи много игроков -> один район
+                builder.HasOne(p => p.District)
+                    .WithMany(d => d.Players)          //район имеет коллекцию игроков
+                    .HasForeignKey(p => p.DistrictId)  // Внешний ключ в Player
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении района не удаляем игрока
+                
+                // 2. Связь один игрок -> один рейтинг
+                builder.HasOne(p => p.PlayerRating)
+                    .WithOne(pr => pr.Player)
+                    .HasForeignKey<PlayerRating>(pr => pr.PlayerId)
+                    .OnDelete(DeleteBehavior.Cascade); // При удалении игрока удаляем рейтинг
+
+                // Ограничения
+                //builder.HasCheckConstraint("CK_Player_Age",
+                //    "DateOfBirth IS NULL OR DateOfBirth <= GETDATE()");
+
+                //builder.HasCheckConstraint("CK_Player_Email",
+                //    "Email IS NULL OR Email LIKE '%@%.%'");
+
+                // Значения по умолчанию
+                builder.Property(p => p.BirthDate)
+                    .HasDefaultValue(null);
+
+                // Seed данные (опционально)
+                builder.HasData(
+                    new Player
+                    {
+                        Id = 1,
+                        FullName = "Тестовый Игрок",
+                        Gender = Gender.Male,
+                        DistrictId = 1
+                    }
+                );
+
+
             });
-            modelBuilder.Entity<Models.Bowling.Team>(builder =>
+            modelBuilder.Entity<Team>(builder =>
             {
                 builder.ToTable("Teams", dbSchema);
-                builder.Property(t => t.SportType).HasMaxLength(100);
 
-                // Связи
-                builder.HasMany(t => t.TeamMembers)
+                builder.Property(t => t.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+                builder.HasIndex(t => t.Name)
+                    .HasDatabaseName("IX_Teams_Name")
+                    .IsUnique();
+                builder.Property(t => t.Abbreviation)
+                    .HasMaxLength(10);
+                builder.Property(t => t.LogoUrl)
+                    .HasMaxLength(500);
+
+                // Индексы
+                builder.HasIndex(t => new { t.TournamentId, t.Name })
+                    .HasDatabaseName("IX_Teams_Tournament_Name")
+                    .IsUnique();
+                builder.HasIndex(t => t.TournamentId)
+                    .HasDatabaseName("IX_Teams_TournamentId");
+
+                //1. Связь однин турнир -> много команд
+                builder.HasOne(t => t.Tournament)
+                    .WithMany(tournament => tournament.Teams)
+                    .HasForeignKey(t => t.TournamentId) //Внешний ключ в в Team
+                    .OnDelete(DeleteBehavior.Cascade);  // При удалении турнира удаляются команды
+                
+                //2. Связь одна команда -> много TeamMembers
+                builder.HasMany(t => t.Members)
                     .WithOne(tm => tm.Team)
-                    .HasForeignKey(tm => tm.TeamId);
+                    .HasForeignKey(tm => tm.TeamId)    //Внешний ключ в в TeamMembers
+                    .OnDelete(DeleteBehavior.Cascade); // При удалении команды удаляются TeamMembers
 
-                builder.HasMany(t => t.TeamParticipations)
-                    .WithOne(p => p.Team)
-                    .HasForeignKey(p => p.TeamId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                //3. Связь одна команда -> много TemResults
+                builder.HasMany(t => t.Results)
+                    .WithOne(tr => tr.Team)
+                    .HasForeignKey(tr => tr.TeamId)     //Внешний ключ в в TemResults
+                    .OnDelete(DeleteBehavior.Restrict); // Результаты не удаляем
 
-                builder.HasMany(t => t.EventTeamMembers)
-                    .WithOne(etm => etm.Team)
-                    .HasForeignKey(etm => etm.TeamId);
-
+                // Ограничения
+                //builder.HasCheckConstraint("CK_Team_Name",
+                //    "LEN(Name) >= 2");
             });
             //TeamMember
             modelBuilder.Entity<Models.Bowling.TeamMember>(builder =>
             {
                 builder.ToTable("TeamMembers", dbSchema);
 
-                //builder.HasKey(tm => new { tm.TeamId, tm.PlayerId, tm.StartDate });
-
-                builder.Property(tm => tm.StartDate)
-                    .HasColumnType("date")
-                    .IsRequired();
-
-                builder.Property(tm => tm.EndDate)
-                    .HasColumnType("date");
-            });
-
-            modelBuilder.Entity<Models.Bowling.Event>(builder =>
-            {
-                builder.ToTable("Events", dbSchema);
-
-
-                builder.Property(e => e.EventType)
+                // Свойства
+                builder.Property(tm => tm.Role)
                     .HasConversion<string>()
-                    .IsRequired();
-                builder.Property(e => e.EventDate).HasColumnType("date").IsRequired();
+                    .HasMaxLength(20)
+                    .HasDefaultValue(TeamMemberRole.Member);
+
+                builder.Property(tm => tm.IsCaptain)
+                    .HasDefaultValue(false);
+
+                builder.Property(tm => tm.OrderNumber)
+                    .HasDefaultValue(0);
+
+                builder.Property(tm => tm.AverageInTeam)
+                    .HasColumnType("decimal(6,2)")
+                    .HasDefaultValue(0);
+
+                builder.Property(tm => tm.GamesPlayedInTeam)
+                    .HasDefaultValue(0);
+
+                builder.Property(tm => tm.JoinedDate)
+                    .HasColumnType("datetime2")
+                    .HasDefaultValueSql("GETUTCDATE()")
+                    .ValueGeneratedOnAdd();
+
+                // Индексы
+                builder.HasIndex(tm => new { tm.TeamId, tm.PlayerId })
+                    .HasDatabaseName("IX_TeamMembers_Team_Player")
+                    .IsUnique(); // Игрок не может быть в одной команде дважды
+
+                builder.HasIndex(tm => tm.PlayerId)
+                    .HasDatabaseName("IX_TeamMembers_PlayerId");
+
+                builder.HasIndex(tm => new { tm.TeamId, tm.OrderNumber })
+                    .HasDatabaseName("IX_TeamMembers_Team_Order");
+
+                builder.HasIndex(tm => new { tm.TeamId, tm.IsCaptain })
+                    .HasDatabaseName("IX_TeamMembers_Team_Captain")
+                    .HasFilter("[IsCaptain] = 1");
 
                 // Связи
-                builder.HasMany(e => e.Participations)
-                    .WithOne(p => p.Event)
-                    .HasForeignKey(p => p.EventId);
+                builder.HasOne(tm => tm.Team)
+                    .WithMany(t => t.Members)
+                    .HasForeignKey(tm => tm.TeamId)
+                    .OnDelete(DeleteBehavior.Cascade);
 
-                builder.HasMany(e => e.EventTeamMembers)
-                    .WithOne(etm => etm.Event)
-                    .HasForeignKey(etm => etm.EventId);
-            });
-            modelBuilder.Entity<Models.Bowling.Participation>(builder =>
-            {
-                builder.ToTable("Participations", dbSchema);
-                builder.Property(p => p.Result).HasMaxLength(100);
+                builder.HasOne(tm => tm.Player)
+                    .WithMany(p => p.TeamMembers)
+                    .HasForeignKey(tm => tm.PlayerId)
+                    .OnDelete(DeleteBehavior.Restrict); // Не удаляем игрока при удалении из команды
 
                 // Ограничения
-               // builder.HasCheckConstraint("CK_Participation_IndividualOrTeam", "(\"PlayerId\" IS NOT NULL AND \"TeamId\" IS NULL) OR (\"TeamId\" IS NOT NULL AND \"PlayerId\" IS NULL)");
+                //builder.HasCheckConstraint("CK_TeamMember_Order",
+                //    "OrderNumber >= 0");
 
-                // Уникальные индексы
-                //builder.HasIndex(p => new { p.EventId, p.PlayerId })
-                //    .IsUnique()
-                //    .HasFilter("\"PlayerId\" IS NOT NULL");
+                //builder.HasCheckConstraint("CK_TeamMember_Average",
+                //    "AverageInTeam >= 0 AND AverageInTeam <= 300");
 
-                //builder.HasIndex(p => new { p.EventId, p.TeamId })
-                //    .IsUnique()
-                //    .HasFilter("\"TeamId\" IS NOT NULL");
+                //builder.HasCheckConstraint("CK_TeamMember_Games",
+                //    "GamesPlayedInTeam >= 0");
+
+                //// Триггеры через HasCheckConstraint (упрощенно)
+                //builder.HasCheckConstraint("CK_TeamMember_SingleCaptain",
+                //    @"
+                //NOT EXISTS (
+                //    SELECT 1 FROM Bowling.TeamMembers tm2 
+                //    WHERE tm2.TeamId = TeamId 
+                //    AND tm2.IsCaptain = 1 
+                //    AND tm2.Id != Id
+                //) OR IsCaptain = 0
+                //");
+
+                // Ограничение на максимальное количество участников в команде
+                // (проверяется на уровне приложения или триггером БД)
             });
-            modelBuilder.Entity<Models.Bowling.EventTeamMember>(builder =>
+            // Ограничение на размер файла (если нужно)
+            modelBuilder.Entity<TournamentDocument>(builder =>
             {
-                builder.ToTable("EventTeamMembers", dbSchema);
-                //builder.HasKey(etm => new { etm.EventId, etm.TeamId, etm.PlayerId });
+                modelBuilder.Entity<TournamentDocument>()
+                .Property(e => e.FileData)
+                .HasColumnType("bytea");
+
+                // Индексы для оптимизации
+                builder
+                    .HasIndex(d => d.TournamentId)
+                    .HasDatabaseName("IX_TournamentDocuments_TournamentId");
+
+               
+            });
+
+            // Базовая конфигурация для BaseTournamentResult
+            modelBuilder.Entity<BaseTournamentResult>(builder =>
+            {
+                builder.ToTable("TournamentResults", dbSchema);
+
+                builder.HasKey(r => r.Id);
+
+                builder.Property(r => r.TotalScore)
+                    .HasColumnType("decimal(8,2)");
+
+                builder.Property(r => r.AverageScore)
+                    .HasColumnType("decimal(6,2)");
+
+                builder.HasIndex(r => new { r.TournamentId, r.Place })
+                    .HasDatabaseName("IX_TournamentResults_Tournament_Place");
+
+                // Связь с турниром
+                builder.HasOne(r => r.Tournament)
+                    .WithMany(t => t.Results)
+                    .HasForeignKey(r => r.TournamentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            // Конфигурация для IndividualResult
+            modelBuilder.Entity<IndividualResult>(builder =>
+            {
+                builder.ToTable("IndividualResults", dbSchema);
+
+                // Наследует все конфигурации от BaseTournamentResult
+
+                // Дополнительные индексы
+                builder.HasIndex(r => r.PlayerId)
+                    .HasDatabaseName("IX_IndividualResults_PlayerId");
+
+                builder.HasIndex(r => new { r.PlayerId, r.TournamentId })
+                    .HasDatabaseName("IX_IndividualResults_Player_Tournament")
+                    .IsUnique();
+
+                // Связь с игроком
+                builder.HasOne(r => r.Player)
+                    .WithMany(p => p.IndividualResults)
+                    .HasForeignKey(r => r.PlayerId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Конфигурация для TeamResult
+            modelBuilder.Entity<TeamResult>(builder =>
+            {
+                builder.ToTable("TeamResults", dbSchema);
+
+                // Дополнительные индексы
+                builder.HasIndex(r => r.TeamId)
+                    .HasDatabaseName("IX_TeamResults_TeamId");
+
+                builder.HasIndex(r => new { r.TeamId, r.TournamentId })
+                    .HasDatabaseName("IX_TeamResults_Team_Tournament")
+                    .IsUnique();
+
+                // Связь с командой
+                builder.HasOne(r => r.Team)
+                    .WithMany(t => t.Results)
+                    .HasForeignKey(r => r.TeamId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
             modelBuilder.Entity<Models.Bowling.City>(builder =>
             {
-                builder.ToTable("Cities", dbSchema);
-                // Связи
-                builder.HasMany(a => a.TeamMembers)
-                    .WithOne(tm => tm.City)
-                    .HasForeignKey(tm => tm.CityId);
-                builder.HasMany(a => a.Players)
-                   .WithOne(tm => tm.City)
-                   .HasForeignKey(tm => tm.CityId);
+                // 1. Связь City → Players (Один город → много игроков)
+                builder.HasMany(c => c.Players)
+                    .WithOne(p => p.City)           // Player имеет навигационное свойство City
+                    .HasForeignKey(p => p.CityId)   // Внешний ключ в Player
+                    .OnDelete(DeleteBehavior.SetNull) // При удалении города, CityId = NULL у игроков
+                    .HasConstraintName("FK_Players_City"); // Имя ограничения в БД
+
+                // 2. Связь City → Tournaments (Один город → много турниров)
+                builder.HasMany(c => c.Tournaments)
+                    .WithOne(t => t.City)           // Tournament имеет навигационное свойство City
+                    .HasForeignKey(t => t.CityId)   // Внешний ключ в Tournament
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении города, CityId = NULL в турнире
+                
+                // 3. Связь City → Tournaments (Один город → много турниров)
+                builder.HasMany(c => c.BowlingCenters)
+                    .WithOne(t => t.City)           // Bowling имеет навигационное свойство City
+                    .HasForeignKey(t => t.CityId)   // Внешний ключ в Bowling
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении города, CityId = NULL в Bowling
+
+                //4. Связь много городов -> один район
+                builder.HasOne(c => c.District)
+                    .WithMany(d => d.Cities)
+                    .HasForeignKey(c => c.DistrictId)
+                    .OnDelete(DeleteBehavior.SetNull); //при удалении района DistrictId = null в City
+
             });
             modelBuilder.Entity<Models.Bowling.District>(builder =>
             {
                 builder.ToTable("Districts", dbSchema);
-                // Связи
+                // 1. Связи District → Cities (Один округ → много городов)
                 builder.HasMany(a => a.Cities)
-                    .WithOne(tm => tm.District)
-                    .HasForeignKey(tm => tm.DistrictId);
-            });
-            modelBuilder.Entity<Models.Bowling.Rank>(builder =>
-            {
-                builder.ToTable("Ranks", dbSchema);
-                // Связи
-                builder.HasMany(a => a.TeamMembers)
-                    .WithOne(tm => tm.Rank)
-                    .HasForeignKey(tm => tm.RankId);
+                    .WithOne(tm => tm.District)         // City имеет навигационное свойство District
+                    .HasForeignKey(tm => tm.DistrictId) // Внешний ключ в City
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении района, DistrictId = NULL в городе
+                // 2. Связи District → Players (Один округ → много игроков)
                 builder.HasMany(a => a.Players)
-                    .WithOne(tm => tm.Rank)
-                    .HasForeignKey(tm => tm.RankId);
+                    .WithOne(tm => tm.District)         // Player имеет навигационное свойство District
+                    .HasForeignKey(tm => tm.DistrictId) // Внешний ключ в Player
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении района, DistrictId = NULL у игрока
             });
+            
             modelBuilder.Entity<Models.Bowling.Oil>(builder =>
             {
                 builder.ToTable("Oils", dbSchema);
                 // Связи
-                builder.HasMany(a => a.Events)
+                builder.HasMany(a => a.Tournaments)
                     .WithOne(tm => tm.Oil)
-                    .HasForeignKey(tm => tm.OilId);
+                    .HasForeignKey(tm => tm.OilId)
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении программы масла, OilId = NULL в турнире
             });
             modelBuilder.Entity<Models.Bowling.Bowling>(builder =>
             {
                 builder.ToTable("Bowlings", dbSchema);
                 // Связи
-                builder.HasMany(e => e.Participations)
-                    .WithOne(p => p.Bowling)
-                    .HasForeignKey(p => p.BowlingId);
+                builder.HasMany(b => b.Tournaments)
+                    .WithOne(t => t.Bowling)
+                    .HasForeignKey(t => t.BowlingId)
+                    .OnDelete(DeleteBehavior.SetNull); // При удалении боулинга, BowlingId = NULL в таблице турнира
+                builder.HasOne(b => b.City)
+                    .WithMany(c => c.BowlingCenters)
+                    .HasForeignKey(b => b.CityId)
+                    /*.OnDelete(DeleteBehavior.SetNull)*/; //Тут что делать?
             });
-            
+            // SQL View для рейтинга
+            modelBuilder.Entity<PlayerRankingView>(entity =>
+            {
+                entity.HasNoKey();
+                entity.ToView("vw_PlayerRankings", "Bowling");
+            });
+            modelBuilder.Entity<Models.Bowling.Tournament>(builder =>
+            {
+                builder.ToTable("Tournaments", dbSchema);
+                builder.Property(t => t.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+                builder.Property(t => t.TournamentType)
+                    .HasDefaultValue(TournamentType.Unknown) // Значение по умолчанию
+                    .HasConversion(
+                        v => v.ToString(),           // Конвертация в строку для хранения в БД
+                        v => (TournamentType)Enum.Parse(typeof(TournamentType), v))
+                    .HasMaxLength(20)
+                    .HasDefaultValue(TournamentType.Unknown);
+
+                builder.Property(t => t.Format)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .HasDefaultValue(TournamentFormat.Unknown);
+
+                builder.Property(t => t.ScoringSystem)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .HasDefaultValue(ScoringSystem.Scratch);
+
+
+                builder.Property(t => t.StartDate)
+                    .HasColumnType("date")
+                    .IsRequired();
+
+                builder.Property(t => t.EndDate)
+                    .HasColumnType("date")
+                    .IsRequired();
+
+                // Индексы
+                builder.HasIndex(t => t.StartDate)
+                    .HasDatabaseName("IX_Tournaments_StartDate");
+
+                builder.HasIndex(t => new { t.TournamentType, t.StartDate })
+                    .HasDatabaseName("IX_Tournaments_Type_Date");
+
+                // Связи
+                // Настройка связи Tournament - TournamentDocument
+                builder
+                    .HasMany(e => e.Documents)
+                    .WithOne(d => d.Tournament)
+                    .HasForeignKey(d => d.TournamentId)
+                    .OnDelete(DeleteBehavior.Cascade); // При удалении турнира удаляются и документы
+                builder.HasMany(e => e.Results)
+                    .WithOne(d => d.Tournament)
+                    .HasForeignKey(d => d.TournamentId)
+                    .OnDelete(DeleteBehavior.Cascade); // При удалении турнира удаляются и результаты
+
+            });
+            modelBuilder.Entity<PlayerRating>(builder =>
+            {
+                builder.ToTable("PlayerRatings", dbSchema);
+
+
+                builder.Property(pr => pr.Rating)
+                    .HasDefaultValue(1500);
+
+                builder.Property(pr => pr.PeakRating)
+                    .HasDefaultValue(1500);
+
+                builder.Property(pr => pr.AveragePlace)
+                    .HasColumnType("decimal(5,2)");
+
+                builder.Property(pr => pr.AverageScore)
+                    .HasColumnType("decimal(6,2)");
+
+                // Индексы
+                builder.HasIndex(pr => pr.Rating)
+                    .HasDatabaseName("IX_PlayerRatings_Rating")
+                    .IsDescending();
+
+                builder.HasIndex(pr => pr.PlayerId)
+                    .HasDatabaseName("IX_PlayerRatings_PlayerId")
+                    .IsUnique();
+
+                // Связи
+                builder.HasOne(pr => pr.Player)
+                    .WithOne(p => p.PlayerRating) // Указываем навигационное свойство в Player
+                    .HasForeignKey<PlayerRating>(pr => pr.PlayerId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RatingHistory>(builder =>
+            {
+                builder.ToTable("RatingHistories", "Bowling");
+
+
+                builder.Property(rh => rh.ChangeReason)
+                    .HasMaxLength(50);
+
+                // Индексы
+                builder.HasIndex(rh => new { rh.PlayerRatingId, rh.ChangeDate })
+                    .HasDatabaseName("IX_RatingHistories_Player_Date");
+
+                builder.HasIndex(rh => rh.TournamentId)
+                    .HasDatabaseName("IX_RatingHistories_TournamentId");
+
+                // Связи
+                builder.HasOne(rh => rh.PlayerRating)
+                    .WithMany(pr => pr.History) // Указать навигационное свойство
+                    .HasForeignKey(rh => rh.PlayerRatingId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                builder.HasOne(rh => rh.Tournament)
+                    .WithMany(t => t.History)
+                    .HasForeignKey(rh => rh.TournamentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
        private Type? FindTypeInAssembly(Assembly assembly, string name)

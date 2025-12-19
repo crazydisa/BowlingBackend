@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -29,6 +29,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\GamesResults\GamesResults.csproj" />
+	  <ProjectReference Include="..\PdfTableReaderDll\PdfTableReaderDll.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -4,7 +4,7 @@ using GamesResults.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
+
 using static System.Linq.Expressions.Expression;
 using System.Reflection;
 //using System.Web;
@@ -14,20 +14,9 @@ using System.Net;
 //using PirAppLib.Models.Smpd;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-//using SapsanLibPost.Models;
-using System;
-using System.Net.Mail;
-using System.Resources;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+
 using GamesResults.Interfaces;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.CodeDom;
-using System.IO;
-using OfficeOpenXml;
-using System.Threading;
-using GamesResults.Utils;
-using System.Text.RegularExpressions;
 
 namespace GamesResults.Controllers.System
 {

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using PdfTableReader2;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,11 +15,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
-using System.Data;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Content;
-using PdfTableReaderDll;
 
 namespace PdfTableReader2
 {
@@ -27,17 +27,27 @@ namespace PdfTableReader2
     /// </summary>
     public partial class MainWindow : Window
     {
-        public List<PlayerResult> Results { get; set; } = new List<PlayerResult>();
+        public ObservableCollection<PlayerResult> Results { get; set; } = new ObservableCollection<PlayerResult>();
 
         public MainWindow()
         {
             InitializeComponent();
-            var tableReader = new PdfTableReader("C:\\projects\\PdfTableReader\\PdfTableReader\\chufo_tumen_2023 (1) (1) (2).pdf\\chufo_tumen_2023 (1) (1) (2)-001.pdf");
-            Results = tableReader.LoadDataFromPdf();
             DataContext = this;
+            Loaded += MainWindow_Loaded;
         }
 
-        
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            var reader = new PdfTableReader();
+            var allTables = await reader.GetAllTablesFromPdf(@"C:\Projects\BowlingBackend\pdf\chufo_tumen_2023 (1) (1) (2)-005.pdf");
+            //foreach (var table in allTables)
+            //{
+                foreach(var result in allTables[0])
+                {
+                    Results.Add(result); 
+                }
+            //}
+        }
     }
 
     

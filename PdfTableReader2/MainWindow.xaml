@@ -9,8 +9,10 @@
     <DataGrid ItemsSource="{Binding Results}" AutoGenerateColumns="False">
         <DataGrid.Columns>
             <DataGridTextColumn Header="Место" Binding="{Binding Place}"/>
+            <DataGridTextColumn Header="TeamId" Binding="{Binding TeamId}"/>
             <DataGridTextColumn Header="Разряд" Binding="{Binding Rank}" Width="70"/>
             <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="200"/>
+            <DataGridTextColumn Header="Пол" Binding="{Binding Gender}" Width="50"/>
             <DataGridTextColumn Header="Регион" Binding="{Binding Region}" Width="150"/>
             <DataGridTextColumn Header="Игра 1" Binding="{Binding Game1}"/>
             <DataGridTextColumn Header="Игра 2" Binding="{Binding Game2}"/>
@@ -21,6 +23,7 @@
             <!-- Повторить для остальных столбцов -->
             <DataGridTextColumn Header="Сумма" Binding="{Binding Total}"/>
             <DataGridTextColumn Header="Среднее" Binding="{Binding Average}"/>
+            <DataGridTextColumn Header="Лучшее" Binding="{Binding BestGameScore}"/>
         </DataGrid.Columns>
     </DataGrid>
 

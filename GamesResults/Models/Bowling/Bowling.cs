@@ -1,14 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GamesResults.Models.Bowling
 {
-    public class Bowling: DictionaryItem
+    // Боулинг-центр
+    public class Bowling
     {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
+        public string? Website { get; set; }
 
-        public ICollection<Participation> Participations { get; set; } = new List<Participation>();
+        // Связь с городом
+        public int CityId { get; set; }
+        public virtual City City { get; set; } = null!;
+
+        // Турниры в этом центре
+        public virtual ICollection<Tournament> Tournaments { get; set; } = new List<Tournament>();
     }
 }
