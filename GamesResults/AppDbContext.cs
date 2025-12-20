@@ -573,12 +573,13 @@ namespace GamesResults
                     .HasDatabaseName("IX_TeamMembers_Team_Captain")
                     .HasFilter("[IsCaptain] = 1");
 
-                // Связи
+                // 1. Связи одна команда -> много TeamMembers
                 builder.HasOne(tm => tm.Team)
                     .WithMany(t => t.Members)
                     .HasForeignKey(tm => tm.TeamId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade); //При удалении команды удаляются и TeamMembers
 
+                // 2. Связь один игрок -> в многих командах
                 builder.HasOne(tm => tm.Player)
                     .WithMany(p => p.TeamMembers)
                     .HasForeignKey(tm => tm.PlayerId)
@@ -611,7 +612,7 @@ namespace GamesResults
             // Ограничение на размер файла (если нужно)
             modelBuilder.Entity<TournamentDocument>(builder =>
             {
-                modelBuilder.Entity<TournamentDocument>()
+                builder
                 .Property(e => e.FileData)
                 .HasColumnType("bytea");
 
@@ -620,7 +621,12 @@ namespace GamesResults
                     .HasIndex(d => d.TournamentId)
                     .HasDatabaseName("IX_TournamentDocuments_TournamentId");
 
-               
+                // 1. Связь один турнир -> много документов
+                builder
+                .HasOne(d => d.Tournament)
+                .WithMany(td => td.Documents)
+                .HasForeignKey(td => td.TournamentId)
+                .OnDelete(DeleteBehavior.Cascade);  //При удалении турнира удаляем и все документы
             });
 
             // Базовая конфигурация для BaseTournamentResult
@@ -628,23 +634,23 @@ namespace GamesResults
             {
                 builder.ToTable("TournamentResults", dbSchema);
 
-                builder.HasKey(r => r.Id);
-
                 builder.Property(r => r.TotalScore)
                     .HasColumnType("decimal(8,2)");
 
                 builder.Property(r => r.AverageScore)
                     .HasColumnType("decimal(6,2)");
 
+                // Индексы для оптимизации
                 builder.HasIndex(r => new { r.TournamentId, r.Place })
                     .HasDatabaseName("IX_TournamentResults_Tournament_Place");
 
-                // Связь с турниром
+                // Связь с турниром. Один турнир -> много результатов
                 builder.HasOne(r => r.Tournament)
                     .WithMany(t => t.Results)
                     .HasForeignKey(r => r.TournamentId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade); //При удалении турнира удаляем и результаты
             });
+
             // Конфигурация для IndividualResult
             modelBuilder.Entity<IndividualResult>(builder =>
             {
@@ -664,8 +670,9 @@ namespace GamesResults
                 builder.HasOne(r => r.Player)
                     .WithMany(p => p.IndividualResults)
                     .HasForeignKey(r => r.PlayerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict); //ЗАПРЕТИТЬ удаление игрока с результатами
             });
+
             // Конфигурация для TeamResult
             modelBuilder.Entity<TeamResult>(builder =>
             {
@@ -683,9 +690,10 @@ namespace GamesResults
                 builder.HasOne(r => r.Team)
                     .WithMany(t => t.Results)
                     .HasForeignKey(r => r.TeamId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict); //Не удаляем команду с результатами
             });
-            modelBuilder.Entity<Models.Bowling.City>(builder =>
+
+            modelBuilder.Entity<City>(builder =>
             {
                 // 1. Связь City → Players (Один город → много игроков)
                 builder.HasMany(c => c.Players)
@@ -713,7 +721,7 @@ namespace GamesResults
                     .OnDelete(DeleteBehavior.SetNull); //при удалении района DistrictId = null в City
 
             });
-            modelBuilder.Entity<Models.Bowling.District>(builder =>
+            modelBuilder.Entity<District>(builder =>
             {
                 builder.ToTable("Districts", dbSchema);
                 // 1. Связи District → Cities (Один округ → много городов)
@@ -728,7 +736,7 @@ namespace GamesResults
                     .OnDelete(DeleteBehavior.SetNull); // При удалении района, DistrictId = NULL у игрока
             });
             
-            modelBuilder.Entity<Models.Bowling.Oil>(builder =>
+            modelBuilder.Entity<Oil>(builder =>
             {
                 builder.ToTable("Oils", dbSchema);
                 // Связи
@@ -737,7 +745,7 @@ namespace GamesResults
                     .HasForeignKey(tm => tm.OilId)
                     .OnDelete(DeleteBehavior.SetNull); // При удалении программы масла, OilId = NULL в турнире
             });
-            modelBuilder.Entity<Models.Bowling.Bowling>(builder =>
+            modelBuilder.Entity<Bowling>(builder =>
             {
                 builder.ToTable("Bowlings", dbSchema);
                 // Связи
@@ -748,15 +756,17 @@ namespace GamesResults
                 builder.HasOne(b => b.City)
                     .WithMany(c => c.BowlingCenters)
                     .HasForeignKey(b => b.CityId)
-                    /*.OnDelete(DeleteBehavior.SetNull)*/; //Тут что делать?
+                    .OnDelete(DeleteBehavior.Cascade); //При удалении города удаляем и боулинги
             });
+
             // SQL View для рейтинга
             modelBuilder.Entity<PlayerRankingView>(entity =>
             {
                 entity.HasNoKey();
                 entity.ToView("vw_PlayerRankings", "Bowling");
             });
-            modelBuilder.Entity<Models.Bowling.Tournament>(builder =>
+
+            modelBuilder.Entity<Tournament>(builder =>
             {
                 builder.ToTable("Tournaments", dbSchema);
                 builder.Property(t => t.Name)
@@ -839,7 +849,7 @@ namespace GamesResults
                 builder.HasOne(pr => pr.Player)
                     .WithOne(p => p.PlayerRating) // Указываем навигационное свойство в Player
                     .HasForeignKey<PlayerRating>(pr => pr.PlayerId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade); //При удалении игрока удаляем и его рейтинг
             });
 
             modelBuilder.Entity<RatingHistory>(builder =>
@@ -861,12 +871,12 @@ namespace GamesResults
                 builder.HasOne(rh => rh.PlayerRating)
                     .WithMany(pr => pr.History) // Указать навигационное свойство
                     .HasForeignKey(rh => rh.PlayerRatingId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .OnDelete(DeleteBehavior.Cascade); //При удалении рейтинга удаляем и всю историю
 
                 builder.HasOne(rh => rh.Tournament)
                     .WithMany(t => t.History)
                     .HasForeignKey(rh => rh.TournamentId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict); //Запретить удаление турнира, если есть история
             });
         }
 
