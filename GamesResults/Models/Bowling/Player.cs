@@ -24,7 +24,7 @@ namespace GamesResults.Models.Bowling
         public City? City { get; set; }
 
         [ObjectPropertyAttribute(TypeName = "District", DisplayExpr = "Name", NameSpace = "GamesResults.Models.Bowling")]
-        public long? DistrictId { get; set; }
+        public long? DistrictId { get; set; } = null;
         public virtual District? District { get; set; }
 
         // Рейтинг игрока (отношение 1:1)

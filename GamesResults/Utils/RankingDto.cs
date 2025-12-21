@@ -14,7 +14,7 @@ namespace GamesResults.Utils
         public int TournamentCount { get; set; }
         public double AveragePlace { get; set; }
         public string RatingCategory { get; set; } = string.Empty;
-        public double AverageScore { get; set; }
+        public decimal AverageScore { get; set; }
         public int RatingChange { get; set; } // Изменение за последний период
 
         public static RankingDto FromRating(PlayerRating rating, int rank)

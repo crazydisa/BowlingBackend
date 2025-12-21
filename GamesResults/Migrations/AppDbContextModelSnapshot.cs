@@ -655,6 +655,83 @@ namespace GamesResults.Migrations
                     b.ToTable("UsersRoles", "Bowling");
                 });
 
+            modelBuilder.Entity("GamesResults.Models.Bowling.BaseTournamentResult", b =>
+                {
+                    b.HasBaseType("GamesResults.Models.Object");
+
+                    b.Property<decimal>("AverageScore")
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<int>("Game1")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Game2")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Game3")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Game4")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Game5")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Game6")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("GameScoresJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("GamesPlayed")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Place")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ResultDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("TotalScore")
+                        .HasColumnType("decimal(8,2)");
+
+                    b.Property<long>("TournamentId")
+                        .HasColumnType("bigint");
+
+                    b.HasIndex("TournamentId");
+
+                    b.ToTable("TournamentResults", "Bowling");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
+                {
+                    b.HasBaseType("GamesResults.Models.Object");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("text");
+
+                    b.Property<long>("CityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("text");
+
+                    b.HasIndex("CityId");
+
+                    b.ToTable("Bowlings", "Bowling");
+                });
+
             modelBuilder.Entity("GamesResults.Models.Bowling.PlayerRating", b =>
                 {
                     b.HasBaseType("GamesResults.Models.Object");
@@ -662,7 +739,7 @@ namespace GamesResults.Migrations
                     b.Property<double>("AveragePlace")
                         .HasColumnType("decimal(5,2)");
 
-                    b.Property<double>("AverageScore")
+                    b.Property<decimal>("AverageScore")
                         .HasColumnType("decimal(6,2)");
 
                     b.Property<DateTime>("LastUpdated")
@@ -680,9 +757,6 @@ namespace GamesResults.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(1500);
-
-                    b.Property<long>("RatingHistoryId")
-                        .HasColumnType("bigint");
 
                     b.Property<double>("Top10Percentage")
                         .HasColumnType("double precision");
@@ -704,6 +778,7 @@ namespace GamesResults.Migrations
                         .HasDatabaseName("IX_PlayerRatings_PlayerId");
 
                     b.HasIndex("Rating")
+                        .IsDescending()
                         .HasDatabaseName("IX_PlayerRatings_Rating");
 
                     b.ToTable("PlayerRatings", "Bowling");
@@ -749,24 +824,35 @@ namespace GamesResults.Migrations
                 {
                     b.HasBaseType("GamesResults.Models.Object");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("timestamp without time zone");
+                    b.Property<string>("Abbreviation")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<int>("GenderTeam")
                         .HasColumnType("integer");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("SportType")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<long>("TournamentId")
+                        .HasColumnType("bigint");
 
                     b.HasIndex("Name")
                         .IsUnique()
                         .HasDatabaseName("IX_Teams_Name");
+
+                    b.HasIndex("TournamentId")
+                        .HasDatabaseName("IX_Teams_TournamentId");
+
+                    b.HasIndex("TournamentId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Teams_Tournament_Name");
 
                     b.ToTable("Teams", "Bowling");
                 });
@@ -775,14 +861,40 @@ namespace GamesResults.Migrations
                 {
                     b.HasBaseType("GamesResults.Models.Object");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<decimal>("AverageInTeam")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(6,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<int>("GamesPlayedInTeam")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool>("IsCaptain")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("JoinedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("OrderNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<long>("PlayerId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("date");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Member");
 
                     b.Property<long>("TeamId")
                         .HasColumnType("bigint");
@@ -790,8 +902,16 @@ namespace GamesResults.Migrations
                     b.HasIndex("PlayerId")
                         .HasDatabaseName("IX_TeamMembers_PlayerId");
 
-                    b.HasIndex("TeamId")
-                        .HasDatabaseName("IX_TeamMembers_TeamId");
+                    b.HasIndex("TeamId", "IsCaptain")
+                        .HasDatabaseName("IX_TeamMembers_Team_Captain")
+                        .HasFilter("\"IsCaptain\" = true");
+
+                    b.HasIndex("TeamId", "OrderNumber")
+                        .HasDatabaseName("IX_TeamMembers_Team_Order");
+
+                    b.HasIndex("TeamId", "PlayerId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_TeamMembers_Team_Player");
 
                     b.ToTable("TeamMembers", "Bowling");
                 });
@@ -800,11 +920,27 @@ namespace GamesResults.Migrations
                 {
                     b.HasBaseType("GamesResults.Models.Object");
 
+                    b.Property<long?>("BowlingId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("CityId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("date");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Unknown");
+
+                    b.Property<int?>("MaxTeamSize")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("MinTeamSize")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -820,16 +956,24 @@ namespace GamesResults.Migrations
                     b.Property<DateTime?>("RatingsUpdatedDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<DateTime?>("StartDate")
+                    b.Property<string>("ScoringSystem")
                         .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Scratch");
+
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("date");
 
                     b.Property<string>("TournamentType")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasDefaultValue("Unknown");
+
+                    b.HasIndex("BowlingId");
 
                     b.HasIndex("CityId");
 
@@ -837,6 +981,9 @@ namespace GamesResults.Migrations
 
                     b.HasIndex("StartDate")
                         .HasDatabaseName("IX_Tournaments_StartDate");
+
+                    b.HasIndex("TournamentType", "StartDate")
+                        .HasDatabaseName("IX_Tournaments_Type_Date");
 
                     b.ToTable("Tournaments", "Bowling");
                 });
@@ -891,93 +1038,6 @@ namespace GamesResults.Migrations
                     b.ToTable("TournamentDocuments", "Bowling");
                 });
 
-            modelBuilder.Entity("GamesResults.Models.Bowling.TournamentResult", b =>
-                {
-                    b.HasBaseType("GamesResults.Models.Object");
-
-                    b.Property<long?>("BowlingId")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("Game1")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Game2")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Game3")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Game4")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Game5")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Game6")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("IsTeam")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<double?>("OriginalAverage")
-                        .HasColumnType("double precision");
-
-                    b.Property<int?>("OriginalTotal")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Place")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("PlayerId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Rank")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("Region")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int>("Summ")
-                        .HasColumnType("integer");
-
-                    b.Property<long?>("TeamId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("TeamName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<long>("TournamentId")
-                        .HasColumnType("bigint");
-
-                    b.HasIndex("BowlingId");
-
-                    b.HasIndex("Place")
-                        .HasDatabaseName("IX_TournamentResults_Place");
-
-                    b.HasIndex("PlayerId")
-                        .HasDatabaseName("IX_TournamentResults_PlayerId");
-
-                    b.HasIndex("TeamId");
-
-                    b.HasIndex("TournamentId")
-                        .HasDatabaseName("IX_TournamentResults_TournamentId");
-
-                    b.HasIndex("TournamentId", "Place")
-                        .HasDatabaseName("IX_TournamentResults_Tournament_Place");
-
-                    b.ToTable("Results", "Bowling");
-                });
-
             modelBuilder.Entity("GamesResults.Models.Container", b =>
                 {
                     b.HasBaseType("GamesResults.Models.Object");
@@ -1004,6 +1064,7 @@ namespace GamesResults.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("varchar(1000)")
                         .HasColumnName("name");
@@ -1011,6 +1072,48 @@ namespace GamesResults.Migrations
                     b.HasIndex("DictionaryTypeId");
 
                     b.ToTable("DictionaryItems", "Bowling");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.IndividualResult", b =>
+                {
+                    b.HasBaseType("GamesResults.Models.Bowling.BaseTournamentResult");
+
+                    b.Property<int>("HighGame")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LowGame")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("PlayerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("SpareCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StrikeCount")
+                        .HasColumnType("integer");
+
+                    b.HasIndex("PlayerId")
+                        .HasDatabaseName("IX_IndividualResults_PlayerId");
+
+                    b.ToTable("IndividualResults", "Bowling");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.TeamResult", b =>
+                {
+                    b.HasBaseType("GamesResults.Models.Bowling.BaseTournamentResult");
+
+                    b.Property<string>("MemberScoresJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("TeamId")
+                        .HasColumnType("bigint");
+
+                    b.HasIndex("TeamId")
+                        .HasDatabaseName("IX_TeamResults_TeamId");
+
+                    b.ToTable("TeamResults", "Bowling");
                 });
 
             modelBuilder.Entity("GamesResults.Models.Component", b =>
@@ -1042,13 +1145,6 @@ namespace GamesResults.Migrations
                     b.ToTable("System", "Bowling");
                 });
 
-            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
-                {
-                    b.HasBaseType("GamesResults.Models.DictionaryItem");
-
-                    b.ToTable("Bowlings", "Bowling");
-                });
-
             modelBuilder.Entity("GamesResults.Models.Bowling.City", b =>
                 {
                     b.HasBaseType("GamesResults.Models.DictionaryItem");
@@ -1061,13 +1157,6 @@ namespace GamesResults.Migrations
                     b.ToTable("Cities", "Bowling");
                 });
 
-            modelBuilder.Entity("GamesResults.Models.Bowling.Discipline", b =>
-                {
-                    b.HasBaseType("GamesResults.Models.DictionaryItem");
-
-                    b.ToTable("Disciplines", "Bowling");
-                });
-
             modelBuilder.Entity("GamesResults.Models.Bowling.District", b =>
                 {
                     b.HasBaseType("GamesResults.Models.DictionaryItem");
@@ -1078,6 +1167,9 @@ namespace GamesResults.Migrations
             modelBuilder.Entity("GamesResults.Models.Bowling.Oil", b =>
                 {
                     b.HasBaseType("GamesResults.Models.DictionaryItem");
+
+                    b.Property<string>("Pattern")
+                        .HasColumnType("text");
 
                     b.ToTable("Oils", "Bowling");
                 });
@@ -1099,6 +1191,15 @@ namespace GamesResults.Migrations
                     b.Property<long?>("DistrictId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1106,15 +1207,28 @@ namespace GamesResults.Migrations
                         .HasColumnType("character varying(10)")
                         .HasDefaultValue("Unknown");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<long>("PlayerRatingId")
                         .HasColumnType("bigint");
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("DistrictId");
+                    b.HasIndex("DistrictId")
+                        .HasDatabaseName("IX_Players_DistrictId");
 
-                    b.HasIndex("Name")
-                        .HasDatabaseName("IX_Players_Name");
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Players_Email")
+                        .HasFilter("\"Email\" IS NOT NULL");
+
+                    b.HasIndex("FullName")
+                        .HasDatabaseName("IX_Players_FullName");
+
+                    b.HasIndex("Gender", "BirthDate")
+                        .HasDatabaseName("IX_Players_Gender_BirthDate");
 
                     b.ToTable("Players", "Bowling");
                 });
@@ -1275,6 +1389,40 @@ namespace GamesResults.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("GamesResults.Models.Bowling.BaseTournamentResult", b =>
+                {
+                    b.HasOne("GamesResults.Models.Object", null)
+                        .WithOne()
+                        .HasForeignKey("GamesResults.Models.Bowling.BaseTournamentResult", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GamesResults.Models.Bowling.Tournament", "Tournament")
+                        .WithMany("Results")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tournament");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
+                {
+                    b.HasOne("GamesResults.Models.Bowling.City", "City")
+                        .WithMany("BowlingCenters")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GamesResults.Models.Object", null)
+                        .WithOne()
+                        .HasForeignKey("GamesResults.Models.Bowling.Bowling", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("GamesResults.Models.Bowling.PlayerRating", b =>
                 {
                     b.HasOne("GamesResults.Models.Object", null)
@@ -1324,6 +1472,14 @@ namespace GamesResults.Migrations
                         .HasForeignKey("GamesResults.Models.Bowling.Team", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("GamesResults.Models.Bowling.Tournament", "Tournament")
+                        .WithMany("Teams")
+                        .HasForeignKey("TournamentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tournament");
                 });
 
             modelBuilder.Entity("GamesResults.Models.Bowling.TeamMember", b =>
@@ -1337,7 +1493,7 @@ namespace GamesResults.Migrations
                     b.HasOne("GamesResults.Models.Bowling.Player", "Player")
                         .WithMany("TeamMembers")
                         .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("GamesResults.Models.Bowling.Team", "Team")
@@ -1353,6 +1509,11 @@ namespace GamesResults.Migrations
 
             modelBuilder.Entity("GamesResults.Models.Bowling.Tournament", b =>
                 {
+                    b.HasOne("GamesResults.Models.Bowling.Bowling", "Bowling")
+                        .WithMany("Tournaments")
+                        .HasForeignKey("BowlingId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("GamesResults.Models.Bowling.City", "City")
                         .WithMany("Tournaments")
                         .HasForeignKey("CityId")
@@ -1368,6 +1529,8 @@ namespace GamesResults.Migrations
                         .WithMany("Tournaments")
                         .HasForeignKey("OilId")
                         .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Bowling");
 
                     b.Navigation("City");
 
@@ -1387,45 +1550,6 @@ namespace GamesResults.Migrations
                         .HasForeignKey("TournamentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Tournament");
-                });
-
-            modelBuilder.Entity("GamesResults.Models.Bowling.TournamentResult", b =>
-                {
-                    b.HasOne("GamesResults.Models.Bowling.Bowling", "Bowling")
-                        .WithMany("Results")
-                        .HasForeignKey("BowlingId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("GamesResults.Models.Object", null)
-                        .WithOne()
-                        .HasForeignKey("GamesResults.Models.Bowling.TournamentResult", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GamesResults.Models.Bowling.Player", "Player")
-                        .WithMany("TournamentResults")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("GamesResults.Models.Bowling.Team", "Team")
-                        .WithMany("TournamentResults")
-                        .HasForeignKey("TeamId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("GamesResults.Models.Bowling.Tournament", "Tournament")
-                        .WithMany("Results")
-                        .HasForeignKey("TournamentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bowling");
-
-                    b.Navigation("Player");
-
-                    b.Navigation("Team");
 
                     b.Navigation("Tournament");
                 });
@@ -1452,6 +1576,40 @@ namespace GamesResults.Migrations
                         .IsRequired();
 
                     b.Navigation("DictionaryType");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.IndividualResult", b =>
+                {
+                    b.HasOne("GamesResults.Models.Bowling.BaseTournamentResult", null)
+                        .WithOne()
+                        .HasForeignKey("GamesResults.Models.Bowling.IndividualResult", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GamesResults.Models.Bowling.Player", "Player")
+                        .WithMany("IndividualResults")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("GamesResults.Models.Bowling.TeamResult", b =>
+                {
+                    b.HasOne("GamesResults.Models.Bowling.BaseTournamentResult", null)
+                        .WithOne()
+                        .HasForeignKey("GamesResults.Models.Bowling.TeamResult", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GamesResults.Models.Bowling.Team", "Team")
+                        .WithMany("Results")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("GamesResults.Models.Component", b =>
@@ -1487,15 +1645,6 @@ namespace GamesResults.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
-                {
-                    b.HasOne("GamesResults.Models.DictionaryItem", null)
-                        .WithOne()
-                        .HasForeignKey("GamesResults.Models.Bowling.Bowling", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GamesResults.Models.Bowling.City", b =>
                 {
                     b.HasOne("GamesResults.Models.Bowling.District", "District")
@@ -1510,15 +1659,6 @@ namespace GamesResults.Migrations
                         .IsRequired();
 
                     b.Navigation("District");
-                });
-
-            modelBuilder.Entity("GamesResults.Models.Bowling.Discipline", b =>
-                {
-                    b.HasOne("GamesResults.Models.DictionaryItem", null)
-                        .WithOne()
-                        .HasForeignKey("GamesResults.Models.Bowling.Discipline", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("GamesResults.Models.Bowling.District", b =>
@@ -1577,6 +1717,11 @@ namespace GamesResults.Migrations
                     b.Navigation("Properties");
                 });
 
+            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
+                {
+                    b.Navigation("Tournaments");
+                });
+
             modelBuilder.Entity("GamesResults.Models.Bowling.PlayerRating", b =>
                 {
                     b.Navigation("History");
@@ -1586,7 +1731,7 @@ namespace GamesResults.Migrations
                 {
                     b.Navigation("Members");
 
-                    b.Navigation("TournamentResults");
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("GamesResults.Models.Bowling.Tournament", b =>
@@ -1596,15 +1741,14 @@ namespace GamesResults.Migrations
                     b.Navigation("History");
 
                     b.Navigation("Results");
-                });
 
-            modelBuilder.Entity("GamesResults.Models.Bowling.Bowling", b =>
-                {
-                    b.Navigation("Results");
+                    b.Navigation("Teams");
                 });
 
             modelBuilder.Entity("GamesResults.Models.Bowling.City", b =>
                 {
+                    b.Navigation("BowlingCenters");
+
                     b.Navigation("Players");
 
                     b.Navigation("Tournaments");
@@ -1624,11 +1768,11 @@ namespace GamesResults.Migrations
 
             modelBuilder.Entity("GamesResults.Models.Bowling.Player", b =>
                 {
+                    b.Navigation("IndividualResults");
+
                     b.Navigation("PlayerRating");
 
                     b.Navigation("TeamMembers");
-
-                    b.Navigation("TournamentResults");
                 });
 #pragma warning restore 612, 618
         }

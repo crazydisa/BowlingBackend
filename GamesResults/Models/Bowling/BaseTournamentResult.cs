@@ -9,13 +9,15 @@ namespace GamesResults.Models.Bowling
     public abstract class BaseTournamentResult: Object
     {
         // Общие для всех результатов поля
-        public int TournamentId { get; set; }
+        public long TournamentId { get; set; }
         public virtual Tournament Tournament { get; set; } = null!;
 
         public int Place { get; set; }           // Финальное место
         public decimal TotalScore { get; set; }  // Сумма очков
         public decimal AverageScore { get; set; } // Средний результат
         public int GamesPlayed { get; set; }     // Количество сыгранных игр
+
+
 
         // Детализация по играм (хранится как JSON или в связанной таблице)
         public string GameScoresJson { get; set; } = "[]"; // JSON: [220, 180, 195, ...]
@@ -48,7 +50,7 @@ namespace GamesResults.Models.Bowling
 
         // Абстрактное свойство для получения ID участника/команды
         [NotMapped]
-        public abstract int ParticipantId { get; }
+        public abstract long ParticipantId { get; }
 
         // Методы
         public int CalculateTotal() => Game1 + Game2 + Game3 + Game4 + Game5 + Game6;

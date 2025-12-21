@@ -9,7 +9,7 @@ namespace GamesResults.Models.Bowling
     public class IndividualResult : BaseTournamentResult
     {
         // Связь с игроком
-        public int PlayerId { get; set; }
+        public long PlayerId { get; set; }
         public virtual Player Player { get; set; } = null!;
 
         // Дополнительная статистика для индивида
@@ -23,7 +23,7 @@ namespace GamesResults.Models.Bowling
         public override string ParticipantName => Player?.FullName ?? "Неизвестный игрок";
 
         [NotMapped]
-        public override int ParticipantId => PlayerId;
+        public override long ParticipantId => PlayerId;
 
         // Вычисляемые свойства
         [NotMapped]

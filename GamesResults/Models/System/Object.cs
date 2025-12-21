@@ -25,7 +25,7 @@ namespace GamesResults.Models
         [JsonIgnore]
         public Object? Parent { get; set; }
 
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
 
         public string? Description { get; set; }
 

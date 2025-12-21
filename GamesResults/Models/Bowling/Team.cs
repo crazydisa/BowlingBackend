@@ -14,7 +14,7 @@ namespace GamesResults.Models.Bowling
         public string? Abbreviation { get; set; }
         public string? LogoUrl { get; set; }
         // Связь с турниром
-        public int TournamentId { get; set; }
+        public long TournamentId { get; set; }
         public virtual Tournament Tournament { get; set; } = null!;
 
         public Gender GenderTeam { get; set; } = Gender.Unknown;

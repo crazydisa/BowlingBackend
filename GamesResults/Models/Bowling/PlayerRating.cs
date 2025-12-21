@@ -30,7 +30,7 @@ namespace GamesResults.Models.Bowling
         // Общая статистика
         public int TotalGames { get; set; }
         public int TotalPins { get; set; } // Общее количество кеглей
-        public double AverageScore { get; set; }
+        public decimal AverageScore { get; set; }
 
         // Дата последнего обновления
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;

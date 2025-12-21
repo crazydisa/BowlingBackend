@@ -443,7 +443,7 @@ namespace GamesResults
                 builder.HasIndex(p => p.Email)
                     .HasDatabaseName("IX_Players_Email")
                     .IsUnique()
-                    .HasFilter("[Email] IS NOT NULL");
+                    .HasFilter("\"Email\" IS NOT NULL");
                 builder.HasIndex(p => p.DistrictId)
                     .HasDatabaseName("IX_Players_DistrictId");
                 builder.HasIndex(p => new { p.Gender, p.BirthDate })
@@ -473,15 +473,15 @@ namespace GamesResults
                     .HasDefaultValue(null);
 
                 // Seed данные (опционально)
-                builder.HasData(
-                    new Player
-                    {
-                        Id = 1,
-                        FullName = "Тестовый Игрок",
-                        Gender = Gender.Male,
-                        DistrictId = 1
-                    }
-                );
+                //builder.HasData(
+                //    new Player
+                //    {
+                //        Id = 1,
+                //        FullName = "Тестовый Игрок",
+                //        Gender = Gender.Male,
+                //        DistrictId = 1
+                //    }
+                //);
 
 
             });
@@ -530,7 +530,7 @@ namespace GamesResults
                 //    "LEN(Name) >= 2");
             });
             //TeamMember
-            modelBuilder.Entity<Models.Bowling.TeamMember>(builder =>
+            modelBuilder.Entity<TeamMember>(builder =>
             {
                 builder.ToTable("TeamMembers", dbSchema);
 
@@ -554,8 +554,8 @@ namespace GamesResults
                     .HasDefaultValue(0);
 
                 builder.Property(tm => tm.JoinedDate)
-                    .HasColumnType("datetime2")
-                    .HasDefaultValueSql("GETUTCDATE()")
+                    .HasColumnType("timestamp with time zone") // или "timestamptz"
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .ValueGeneratedOnAdd();
 
                 // Индексы
@@ -571,7 +571,7 @@ namespace GamesResults
 
                 builder.HasIndex(tm => new { tm.TeamId, tm.IsCaptain })
                     .HasDatabaseName("IX_TeamMembers_Team_Captain")
-                    .HasFilter("[IsCaptain] = 1");
+                    .HasFilter("\"IsCaptain\" = true");
 
                 // 1. Связи одна команда -> много TeamMembers
                 builder.HasOne(tm => tm.Team)
@@ -640,9 +640,9 @@ namespace GamesResults
                 builder.Property(r => r.AverageScore)
                     .HasColumnType("decimal(6,2)");
 
-                // Индексы для оптимизации
-                builder.HasIndex(r => new { r.TournamentId, r.Place })
-                    .HasDatabaseName("IX_TournamentResults_Tournament_Place");
+                //// Индексы для оптимизации
+                //builder.HasIndex(r => new { r.TournamentId, r.Place })
+                //    .HasDatabaseName("IX_TournamentResults_Tournament_Place");
 
                 // Связь с турниром. Один турнир -> много результатов
                 builder.HasOne(r => r.Tournament)
@@ -657,14 +657,17 @@ namespace GamesResults
                 builder.ToTable("IndividualResults", dbSchema);
 
                 // Наследует все конфигурации от BaseTournamentResult
-
+                // Индекс должен быть только на свойства в ЭТОЙ таблице
+                //builder.HasIndex(r => new { r.PlayerId, r.TournamentId, r.Place })
+                //    .HasDatabaseName("IX_IndividualResults_Player_Tournament_Place")
+                //    .IsUnique();
                 // Дополнительные индексы
                 builder.HasIndex(r => r.PlayerId)
                     .HasDatabaseName("IX_IndividualResults_PlayerId");
 
-                builder.HasIndex(r => new { r.PlayerId, r.TournamentId })
-                    .HasDatabaseName("IX_IndividualResults_Player_Tournament")
-                    .IsUnique();
+                //builder.HasIndex(r => new { r.PlayerId, r.TournamentId })
+                //    .HasDatabaseName("IX_IndividualResults_Player_Tournament")
+                //    .IsUnique();
 
                 // Связь с игроком
                 builder.HasOne(r => r.Player)
@@ -678,13 +681,16 @@ namespace GamesResults
             {
                 builder.ToTable("TeamResults", dbSchema);
 
+                //builder.HasIndex(r => new { r.TeamId, r.TournamentId, r.Place })
+                //   .HasDatabaseName("IX_TeamResults_Team_Tournament_Place")
+                //   .IsUnique();
                 // Дополнительные индексы
                 builder.HasIndex(r => r.TeamId)
                     .HasDatabaseName("IX_TeamResults_TeamId");
 
-                builder.HasIndex(r => new { r.TeamId, r.TournamentId })
-                    .HasDatabaseName("IX_TeamResults_Team_Tournament")
-                    .IsUnique();
+                //builder.HasIndex(r => new { r.TeamId, r.TournamentId })
+                //    .HasDatabaseName("IX_TeamResults_Team_Tournament")
+                //    .IsUnique();
 
                 // Связь с командой
                 builder.HasOne(r => r.Team)
@@ -792,12 +798,12 @@ namespace GamesResults
 
 
                 builder.Property(t => t.StartDate)
-                    .HasColumnType("date")
-                    .IsRequired();
+                    .HasColumnType("date");
+                //.IsRequired();
 
                 builder.Property(t => t.EndDate)
-                    .HasColumnType("date")
-                    .IsRequired();
+                    .HasColumnType("date");
+                    //.IsRequired();
 
                 // Индексы
                 builder.HasIndex(t => t.StartDate)

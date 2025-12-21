@@ -10,7 +10,7 @@ namespace GamesResults.Models.Bowling
     public class TeamResult : BaseTournamentResult
     {
         // Связь с командой
-        public int TeamId { get; set; }
+        public long TeamId { get; set; }
         public virtual Team Team { get; set; } = null!;
 
         // Детализация по участникам команды (JSON)
@@ -21,7 +21,7 @@ namespace GamesResults.Models.Bowling
         public override string ParticipantName => Team?.Name ?? "Неизвестная команда";
 
         [NotMapped]
-        public override int ParticipantId => TeamId;
+        public override long ParticipantId => TeamId;
 
         // Вычисляемые свойства
         [NotMapped]

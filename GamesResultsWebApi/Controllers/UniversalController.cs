@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PdfTableReader2;
 using System;
 using System.Globalization;
+using System.Text.Json;
 
 namespace GamesResults.Controllers.Upload
 {
@@ -171,13 +172,13 @@ namespace GamesResults.Controllers.Upload
                 turnir.Documents.Add(TournamentDocument);
 
                 // 10. Обработка игроков и их результатов
-                var tableResults = new List<TournamentResult>();
+                var tableResults = new List<BaseTournamentResult>();
                 var districtsCache = new Dictionary<string, District>();
                 var playersCache = new Dictionary<string, Player>();
 
                 //Получаем результаты игр из файла
                 List<PlayerResult> allPlayers = allTables.SelectMany(table => table).ToList();
-
+                
                 // Получаем все существующие районы для кэширования
                 var existingDistricts = nsContext.Districts
                     .Where(d => allPlayers.Select(p => p.Region).Contains(d.Title))
@@ -210,7 +211,7 @@ namespace GamesResults.Controllers.Upload
                     item.Player.District = item.District; // Устанавливаем связь вручную
                     playersCache[item.Player.Name] = item.Player;
                 }
-
+                await nsContext.SaveChangesAsync();
                 foreach (var playerResult in allPlayers)
                 {
                     // Поиск или создание района
@@ -237,7 +238,7 @@ namespace GamesResults.Controllers.Upload
                             districtsCache[regionName] = bdDistrict;
                         }
                     }
-
+                    await nsContext.SaveChangesAsync();
                     // Поиск или создание игрока
                     Player bdPlayer = null;
                     var playerName = playerResult.FullName?.Trim();
@@ -266,25 +267,173 @@ namespace GamesResults.Controllers.Upload
                             playersCache[playerName] = bdPlayer;
                         }
                     }
-
+                    await nsContext.SaveChangesAsync();
                     if (bdPlayer != null)
                     {
-                        var participation = new TournamentResult
+                        BaseTournamentResult participation=null;
+                        // Проверяем, является ли результат командным
+                        if (playerResult.IsTeam && !string.IsNullOrWhiteSpace(playerResult.TeamName))
                         {
-                            Title = bdPlayer.Name,
-                            PlayerId = bdPlayer.Id,
-                            Player = bdPlayer,
+                            // ========== ОБРАБОТКА КОМАНД ==========
+
+                            // 1. Поиск или создание команды
+                            var team = await nsContext.Teams
+                                .FirstOrDefaultAsync(t =>
+                                    t.Name == playerResult.TeamName &&
+                                    t.TournamentId == turnir.Id);
+
+                            if (team == null)
+                            {
+                                team = new Team
+                                {
+                                    Name = playerResult.TeamName,
+                                    Abbreviation = GetTeamAbbreviation(playerResult.TeamName),
+                                    TournamentId = turnir.Id,
+                                    CreatedAt = DateTime.UtcNow
+                                };
+                                nsContext.Teams.Add(team);
+
+                                // Нужно сохранить, чтобы получить Id команды
+                                await nsContext.SaveChangesAsync();
+                            }
                             
-                            TournamentId = turnir.Id,
-                            Tournament = turnir,
-                            Game1 = playerResult.Game1,
-                            Game2 = playerResult.Game2,
-                            Game3 = playerResult.Game3,
-                            Game4 = playerResult.Game4,
-                            Game5 = playerResult.Game5,
-                            Game6 = playerResult.Game6,
-                            CreatedAt = DateTime.UtcNow
-                        };
+                            // 2. Добавление игрока в команду как капитана
+                            var teamMember = new TeamMember
+                            {
+                                TeamId = team.Id,
+                                PlayerId = bdPlayer.Id,
+                                IsCaptain = true,
+                                Role = TeamMemberRole.Captain,
+                                OrderNumber = 1,
+                                JoinedDate = DateTime.UtcNow,
+                                CreatedAt = DateTime.UtcNow
+                            };
+                            nsContext.TeamMembers.Add(teamMember);
+
+                            // 3. Добавление других участников команды (если есть в TeamMembers)
+                            for (int i = 0; i < playerResult.TeamMembers.Count; i++)
+                            {
+                                var memberName = playerResult.TeamMembers[i];
+                                var memberIdStr = playerResult.TeamMemberIds.ElementAtOrDefault(i);
+
+                                // Поиск игрока-участника команды
+                                var memberPlayer = await FindOrCreatePlayerAsync(
+                                    memberName,
+                                    nsContext,
+                                    districtsCache,
+                                    playersCache);
+                                if (memberPlayer.Id == 0)
+                                {
+                                    //_logger.LogError("PlayerId = 0 для игрока: {Name}", bdPlayer.Name);
+
+                                    // Пытаемся найти игрока в БД
+                                    var savedPlayer = await nsContext.Players
+                                        .FirstOrDefaultAsync(p => p.Name == bdPlayer.Name);
+
+                                    if (savedPlayer == null)
+                                    {
+                                        // Сохраняем игрока
+                                        await nsContext.SaveChangesAsync();
+                                        savedPlayer = memberPlayer;
+                                    }
+
+                                    memberPlayer = savedPlayer;
+                                }
+                                if (memberPlayer != null && memberPlayer.Id != bdPlayer.Id)
+                                {
+                                    var member = new TeamMember
+                                    {
+                                        TeamId = team.Id,
+                                        PlayerId = memberPlayer.Id,
+                                        IsCaptain = false,
+                                        Role = TeamMemberRole.Member,
+                                        OrderNumber = i + 2, // +2 т.к. капитан уже на позиции 1
+                                        JoinedDate = DateTime.UtcNow,
+                                        CreatedAt = DateTime.UtcNow
+                                    };
+                                    nsContext.TeamMembers.Add(member);
+                                }
+                            }
+                            nsContext.TeamMembers.Add(teamMember);
+                            // 4. Создание КОМАНДНОГО результата
+                            var teamResult = new TeamResult
+                            {
+                                TournamentId = turnir.Id,
+                                TeamId = team.Id,
+                                Place = playerResult.Place,
+                                TotalScore = playerResult.Total,
+                                AverageScore = (decimal)playerResult.Average,
+                                GamesPlayed = playerResult.PlayedGamesCount,
+                                ResultDate = DateTime.UtcNow,
+                                Notes = $"Команда: {playerResult.TeamName}, Капитан: {bdPlayer.Name}"
+                            };
+
+                            // Сохраняем результаты игр как JSON
+                            var gameScores = new[]
+                            {
+                                playerResult.Game1,
+                                playerResult.Game2,
+                                playerResult.Game3,
+                                playerResult.Game4,
+                                playerResult.Game5,
+                                playerResult.Game6
+                            };
+                            teamResult.GameScoresJson = JsonSerializer.Serialize(gameScores);
+
+                            // Сохраняем баллы участников команды
+                            var memberScores = new Dictionary<long, int>();
+
+                            // Добавляем баллы капитана
+                            memberScores[bdPlayer.Id] = playerResult.Total;
+
+                            // Добавляем баллы остальных участников (если известны)
+                            // В реальном парсинге нужно извлекать их результаты
+                            teamResult.MemberScoresJson = JsonSerializer.Serialize(memberScores);
+
+                            participation = teamResult;
+                        }
+                        else
+                        {
+                            // ========== ИНДИВИДУАЛЬНЫЙ РЕЗУЛЬТАТ ==========
+
+                            var individualResult = new IndividualResult
+                            {
+                                TournamentId = turnir.Id,
+                                PlayerId = bdPlayer.Id,
+                                Place = playerResult.Place,
+                                TotalScore = playerResult.Total,
+                                AverageScore = (decimal)playerResult.Average,
+                                GamesPlayed = playerResult.PlayedGamesCount,
+                                ResultDate = DateTime.UtcNow,
+                                Notes = $"Индивидуальное участие"
+                            };
+
+                            // Сохраняем результаты игр как JSON
+                            var gameScores = new[]
+                            {
+                                playerResult.Game1,
+                                playerResult.Game2,
+                                playerResult.Game3,
+                                playerResult.Game4,
+                                playerResult.Game5,
+                                playerResult.Game6
+                            };
+                            individualResult.GameScoresJson = JsonSerializer.Serialize(gameScores);
+
+                            // Дополнительная статистика
+                            individualResult.HighGame = playerResult.BestGameScore;
+                            individualResult.LowGame = playerResult.WorstGameScore;
+                            individualResult.StrikeCount = 0; // Можно парсить из PDF, если есть данные
+                            individualResult.SpareCount = 0;  // Можно парсить из PDF, если есть данные
+
+                            participation = individualResult;
+                        }
+
+                        if (participation != null)
+                        {
+                            tableResults.Add(participation);
+                        }
+
                         tableResults.Add(participation);
                     }
                 }
@@ -292,7 +441,7 @@ namespace GamesResults.Controllers.Upload
                 // 11. Сохранение всех Participation
                 if (tableResults.Any())
                 {
-                    nsContext.Results.AddRange(tableResults);
+                    nsContext.TournamentResults.AddRange(tableResults);
                 }
 
                 // 12. Сохранение всех изменений
@@ -335,6 +484,60 @@ namespace GamesResults.Controllers.Upload
                 });
             }
             
+        }
+        // Вспомогательный метод для поиска/создания игрока
+        private async Task<Player> FindOrCreatePlayerAsync(
+            string playerName,
+            AppDbContext context,
+            Dictionary<string, District> districtsCache,
+            Dictionary<string, Player> playersCache)
+        {
+            if (string.IsNullOrWhiteSpace(playerName))
+                return null;
+
+            var name = playerName.Trim();
+
+            // Проверяем кэш
+            if (playersCache.TryGetValue(name, out var cachedPlayer))
+                return cachedPlayer;
+
+            // Ищем в БД
+            var player = await context.Players
+                .FirstOrDefaultAsync(p => p.Name == name);
+
+            if (player == null)
+            {
+                // Создаем нового игрока
+                player = new Player
+                {
+                    Title = name,
+                    Name = name,
+                    Gender = Gender.Unknown, // Не знаем пол для участников команды
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Можно попробовать определить район, если есть в каких-то данных
+                context.Players.Add(player);
+            }
+
+            // Сохраняем в кэш
+            playersCache[name] = player;
+
+            return player;
+        }
+
+        // Вспомогательный метод для создания аббревиатуры команды
+        private string GetTeamAbbreviation(string teamName)
+        {
+            if (string.IsNullOrWhiteSpace(teamName))
+                return string.Empty;
+
+            // Простая логика: берем первые буквы слов
+            var words = teamName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length == 1)
+                return teamName.Length > 3 ? teamName.Substring(0, 3).ToUpper() : teamName.ToUpper();
+
+            return new string(words.Select(w => w[0]).ToArray()).ToUpper();
         }
         // GET: api/Tournaments/{TournamentId}/documents
         [HttpGet("/documents")]
