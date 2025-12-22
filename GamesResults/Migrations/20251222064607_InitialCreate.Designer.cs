@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GamesResults.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251221192724_InitialCreate")]
+    [Migration("20251222064607_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

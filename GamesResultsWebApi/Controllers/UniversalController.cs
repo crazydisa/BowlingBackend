@@ -296,9 +296,16 @@ namespace GamesResults.Controllers.Upload
                                 // Нужно сохранить, чтобы получить Id команды
                                 await nsContext.SaveChangesAsync();
                             }
-                            
-                            // 2. Добавление игрока в команду как капитана
-                            var teamMember = new TeamMember
+                            // Проверяем, не добавлен ли уже этот игрок
+                            var existingMember = await nsContext.TeamMembers
+                                .FirstOrDefaultAsync(tm => tm.TeamId == team.Id && tm.PlayerId == bdPlayer.Id);
+
+                            if (existingMember != null)
+                            {
+                                continue; //Участник уже есть в команде
+                            } 
+                                // 2. Добавление игрока в команду как капитана
+                                var teamMember = new TeamMember
                             {
                                 TeamId = team.Id,
                                 PlayerId = bdPlayer.Id,
@@ -309,7 +316,7 @@ namespace GamesResults.Controllers.Upload
                                 CreatedAt = DateTime.UtcNow
                             };
                             nsContext.TeamMembers.Add(teamMember);
-
+                            await nsContext.SaveChangesAsync();
                             // 3. Добавление других участников команды (если есть в TeamMembers)
                             for (int i = 0; i < playerResult.TeamMembers.Count; i++)
                             {
@@ -328,7 +335,7 @@ namespace GamesResults.Controllers.Upload
 
                                     // Пытаемся найти игрока в БД
                                     var savedPlayer = await nsContext.Players
-                                        .FirstOrDefaultAsync(p => p.Name == bdPlayer.Name);
+                                        .FirstOrDefaultAsync(p => p.Name == memberPlayer.Name);
 
                                     if (savedPlayer == null)
                                     {
@@ -339,22 +346,30 @@ namespace GamesResults.Controllers.Upload
 
                                     memberPlayer = savedPlayer;
                                 }
-                                if (memberPlayer != null && memberPlayer.Id != bdPlayer.Id)
+                                if (memberPlayer != null)
                                 {
-                                    var member = new TeamMember
+                                    // Проверяем, не добавлен ли уже этот игрок
+                                     existingMember = await nsContext.TeamMembers
+                                        .FirstOrDefaultAsync(tm => tm.TeamId == team.Id && tm.PlayerId == memberPlayer.Id);
+
+                                    if (existingMember == null)
                                     {
-                                        TeamId = team.Id,
-                                        PlayerId = memberPlayer.Id,
-                                        IsCaptain = false,
-                                        Role = TeamMemberRole.Member,
-                                        OrderNumber = i + 2, // +2 т.к. капитан уже на позиции 1
-                                        JoinedDate = DateTime.UtcNow,
-                                        CreatedAt = DateTime.UtcNow
-                                    };
-                                    nsContext.TeamMembers.Add(member);
+                                        var member = new TeamMember
+                                        {
+                                            TeamId = team.Id,
+                                            PlayerId = memberPlayer.Id,
+                                            IsCaptain = false,
+                                            Role = TeamMemberRole.Member,
+                                            OrderNumber = i + 2,
+                                            JoinedDate = DateTime.UtcNow,
+                                            CreatedAt = DateTime.UtcNow
+                                        };
+                                        nsContext.TeamMembers.Add(member);
+                                        await nsContext.SaveChangesAsync();
+                                    }
                                 }
                             }
-                            nsContext.TeamMembers.Add(teamMember);
+                            //nsContext.TeamMembers.Add(teamMember);
                             // 4. Создание КОМАНДНОГО результата
                             var teamResult = new TeamResult
                             {

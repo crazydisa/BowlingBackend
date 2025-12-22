@@ -745,6 +745,7 @@ namespace GamesResults
             modelBuilder.Entity<Oil>(builder =>
             {
                 builder.ToTable("Oils", dbSchema);
+
                 // Связи
                 builder.HasMany(a => a.Tournaments)
                     .WithOne(tm => tm.Oil)
