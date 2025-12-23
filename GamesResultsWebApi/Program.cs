@@ -88,7 +88,7 @@ builder.Services.AddSwaggerGen(c =>
 //{
 //    options.FallbackPolicy = options.DefaultPolicy;
 //});
-
+builder.Services.AddScoped<IRatingService, EloRatingService>();
 var app = builder.Build();
 
 //using (var scope = app.Services.CreateScope())
@@ -133,6 +133,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Ошибка при инициализации БД");
     }
 }
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
