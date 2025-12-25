@@ -9,7 +9,7 @@ namespace BowlingStatistic.Api.Controllers
         public object? Data { get; set; }
         public PaginationInfo? Pagination { get; set; }
 
-        public static ApiResponse CreateSuccess(string message = "Успешно", object? data = null)
+        public static ApiResponse Success(string message = "Успешно", object? data = null)
         {
             return new ApiResponse
             {
@@ -19,7 +19,7 @@ namespace BowlingStatistic.Api.Controllers
             };
         }
 
-        public static ApiResponse CreateError(string message)
+        public static ApiResponse Error(string message)
         {
             return new ApiResponse
             {
@@ -27,21 +27,14 @@ namespace BowlingStatistic.Api.Controllers
                 Message = message
             };
         }
-        public static  ApiResponse<T> Error(string message)
-        {
-            return new ApiResponse<T>
-            {
-                Ok = false,
-                Message = message
-            };
-        }
+        
     }
 
     public class ApiResponse<T> : ApiResponse
     {
         public new T? Data { get; set; }
 
-        public static ApiResponse<T> Success(T data, string message = "Успешно")
+        public static new ApiResponse<T> Success(T data, string message = "Успешно")
         {
             return new ApiResponse<T>
             {

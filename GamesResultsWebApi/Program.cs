@@ -88,7 +88,7 @@ builder.Services.AddSwaggerGen(c =>
 //{
 //    options.FallbackPolicy = options.DefaultPolicy;
 //});
-builder.Services.AddScoped<IRatingService, EloRatingService>();
+
 var app = builder.Build();
 
 //using (var scope = app.Services.CreateScope())

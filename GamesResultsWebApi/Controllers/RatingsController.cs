@@ -455,11 +455,43 @@ namespace BowlingStatistic.Api.Controllers
                 return StatusCode(500, ApiResponse.Error("Внутренняя ошибка сервера"));
             }
         }
+        private static RecalculationProgress _progress = new();
+
+        // GET: api/ratings/recalculation-progress
+        [HttpGet("recalculation-progress")]
+        [AllowAnonymous]
+        public IActionResult GetRecalculationProgress()
+        {
+            return Ok(ApiResponse<RecalculationProgress>.Success(_progress));
+        }
+
 
         #endregion
 
         #region Вспомогательные методы
+        
 
+        // В методе RecalculateAllRatingsAsync обновляйте прогресс:
+        public async Task RecalculateAllRatingsAsync()
+        {
+            _progress = new RecalculationProgress
+            {
+                StartedAt = DateTime.UtcNow,
+                Completed = false,
+                Current = 0,
+                Total = tournaments.Count,
+                Operation = "Начало перерасчета"
+            };
+
+            // ... в цикле обновляйте:
+            _progress.Current = processedCount;
+            _progress.Operation = $"Обработка турнира {tournament.Name}";
+
+            // В конце:
+            _progress.Completed = true;
+            _progress.Current = _progress.Total;
+            _progress.Operation = "Перерасчет завершен";
+        }
         private async Task<int> GetPlayerGlobalPlaceAsync(int playerId)
         {
             var rating = await _context.PlayerRatings
@@ -621,7 +653,14 @@ namespace BowlingStatistic.Api.Controllers
     }
 
     #region DTO классы
-
+    public class RecalculationProgress
+    {
+        public bool Completed { get; set; }
+        public int Current { get; set; }
+        public int Total { get; set; }
+        public string Operation { get; set; } = string.Empty;
+        public DateTime StartedAt { get; set; }
+    }
     public class RankingsQueryDto
     {
         [Range(1, 1000)]
