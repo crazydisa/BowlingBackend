@@ -15,7 +15,11 @@ namespace BowlingStatistic.Api.Controllers
     public class TournamentsController : ControllerBase
     {
         private readonly AppDbContext _context;
-
+        public TournamentsController(AppDbContext appContext, AppService service)
+        {
+            _context = appContext;
+            //this.service = service;
+        }
         // Получить необработанные турниры
         [HttpGet("unprocessed")]
         public async Task<IActionResult> GetUnprocessedTournaments([FromQuery] int limit = 50)

@@ -469,28 +469,119 @@ namespace BowlingStatistic.Api.Controllers
         #endregion
 
         #region Вспомогательные методы
-        
 
-        // В методе RecalculateAllRatingsAsync обновляйте прогресс:
+
+        /// <summary>
+        /// Пересчитать все рейтинги
+        /// </summary>
         public async Task RecalculateAllRatingsAsync()
         {
-            _progress = new RecalculationProgress
+            _logger.LogInformation("Начало перерасчета всех рейтингов");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                StartedAt = DateTime.UtcNow,
-                Completed = false,
-                Current = 0,
-                Total = tournaments.Count,
-                Operation = "Начало перерасчета"
-            };
+                // Получаем все турниры по дате
+                var tournaments = await _context.Tournaments
+                    .Where(t => t.StartDate.HasValue)
+                    .OrderBy(t => t.StartDate)
+                    .ToListAsync();
 
-            // ... в цикле обновляйте:
-            _progress.Current = processedCount;
-            _progress.Operation = $"Обработка турнира {tournament.Name}";
+                if (!tournaments.Any())
+                {
+                    _logger.LogWarning("Нет турниров для перерасчета");
+                    return;
+                }
 
-            // В конце:
-            _progress.Completed = true;
-            _progress.Current = _progress.Total;
-            _progress.Operation = "Перерасчет завершен";
+                // Инициализируем прогресс
+                _progress = new RecalculationProgress
+                {
+                    StartedAt = DateTime.UtcNow,
+                    Completed = false,
+                    Current = 0,
+                    Total = tournaments.Count,
+                    Operation = "Начало перерасчета"
+                };
+
+                _logger.LogInformation("Найдено {Count} турниров для перерасчета", tournaments.Count);
+
+                // Очищаем текущие рейтинги и историю
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM RatingHistories");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM PlayerRatings");
+
+                // Сбрасываем флаги обновления у турниров
+                await _context.Tournaments
+                    .ForEachAsync(t =>
+                    {
+                        t.RatingsUpdated = false;
+                        t.RatingsUpdatedDate = null;
+                    });
+                await _context.SaveChangesAsync();
+
+                // Пересчитываем рейтинги для каждого турнира по порядку
+                int processedCount = 0;
+                foreach (var tournament in tournaments)
+                {
+                    try
+                    {
+                        // Обновляем прогресс
+                        _progress.Current = processedCount;
+                        _progress.Operation = $"Обработка турнира: {tournament.Name}";
+
+                        _logger.LogDebug("Обработка турнира {TournamentId}: {TournamentName}",
+                            tournament.Id, tournament.Name);
+
+                        // Вызываем метод обновления рейтингов для текущего турнира
+                        await _ratingService.UpdateRatingsAfterTournamentAsync(tournament.Id);
+
+                        processedCount++;
+                        _progress.Current = processedCount;
+
+                        if (processedCount % 10 == 0 || processedCount == tournaments.Count)
+                        {
+                            _logger.LogInformation("Обработано {ProcessedCount}/{TotalCount} турниров",
+                                processedCount, tournaments.Count);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Ошибка при обработке турнира {TournamentId}: {TournamentName}",
+                            tournament.Id, tournament.Name);
+
+                        // Продолжаем обработку других турниров, но отмечаем прогресс
+                        processedCount++;
+                        _progress.Current = processedCount;
+                        _progress.Operation = $"Ошибка в турнире: {tournament.Name}. Продолжение...";
+
+                        // Непрерывное выполнение - пропускаем проблемный турнир
+                        continue;
+                    }
+                }
+
+                await transaction.CommitAsync();
+
+                // Финальное обновление прогресса
+                _progress.Completed = true;
+                _progress.Current = _progress.Total;
+                _progress.Operation = "Перерасчет завершен";
+                _progress.FinishedAt = DateTime.UtcNow;
+
+                _logger.LogInformation("Перерасчет всех рейтингов завершен. Обработано {ProcessedCount} из {TotalCount} турниров",
+                    processedCount, tournaments.Count);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                // Обновляем прогресс с ошибкой
+                _progress.Completed = true;
+                _progress.Operation = $"Ошибка: {ex.Message}";
+                _progress.HasError = true;
+
+                _logger.LogError(ex, "Критическая ошибка при перерасчете всех рейтингов");
+                throw;
+            }
         }
         private async Task<int> GetPlayerGlobalPlaceAsync(int playerId)
         {
@@ -656,10 +747,15 @@ namespace BowlingStatistic.Api.Controllers
     public class RecalculationProgress
     {
         public bool Completed { get; set; }
+        public bool HasError { get; set; }
         public int Current { get; set; }
         public int Total { get; set; }
         public string Operation { get; set; } = string.Empty;
         public DateTime StartedAt { get; set; }
+        public DateTime? FinishedAt { get; set; }
+        public TimeSpan? Duration => FinishedAt.HasValue ? FinishedAt.Value - StartedAt : null;
+
+        public double Percentage => Total > 0 ? (double)Current / Total * 100 : 0;
     }
     public class RankingsQueryDto
     {
@@ -802,6 +898,6 @@ namespace BowlingStatistic.Api.Controllers
         public string ChangeReason { get; set; } = string.Empty;
         public DateTime ChangeDate { get; set; }
     }
-
+    
     #endregion
 }

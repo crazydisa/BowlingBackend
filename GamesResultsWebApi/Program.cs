@@ -44,6 +44,8 @@ builder.Services.AddDbContext<DbContext, AppDbContext>(options => options.UseNpg
 
 
 
+// Регистрируем фоновый сервис
+builder.Services.AddHostedService<RatingUpdateService>();
 
 builder.Services.AddScoped<AppService>();
 // Регистрация сервисов
