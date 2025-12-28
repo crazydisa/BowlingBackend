@@ -65,6 +65,38 @@ namespace BowlingStatistic.Api.Controllers
 
             return Ok(ApiResponse<List<TournamentDto>>.Success(tournaments));
         }
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetTournamentDetails(long id)
+        {
+            var tournament = await _context.Tournaments
+                .Include(t => t.Bowling)
+                .Include(t => t.Oil)
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Name,
+                    t.Description,
+                    t.StartDate,
+                    t.EndDate,
+                    t.City,
+                    t.Type,
+                    t.Format,
+                   // t.Gender,
+                    t.ScoringSystem,
+                    t.RatingsUpdated,
+                    t.RatingsUpdatedDate,
+                    BowlingCenterName = t.Bowling.Name,
+                    BowlingCenterAddress = t.Bowling.Address,
+                    OilName = t.Oil.Name,
+                    OilPattern = t.Oil.Pattern
+                })
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (tournament == null)
+                return NotFound();
+
+            return Ok(new { Data = tournament });
+        }
     }
 
     public class TournamentDto
