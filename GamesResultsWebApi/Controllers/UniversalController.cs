@@ -329,6 +329,7 @@ namespace GamesResults.Controllers.Upload
                                     nsContext,
                                     districtsCache,
                                     playersCache);
+                                if (memberPlayer == null) continue;
                                 if (memberPlayer.Id == 0)
                                 {
                                     //_logger.LogError("PlayerId = 0 для игрока: {Name}", bdPlayer.Name);

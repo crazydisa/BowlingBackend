@@ -526,7 +526,14 @@ namespace PdfTableReader2
                         teamAssignments[individualPlace] = new List<List<Word>> { line };
                     }
                 }
-
+                // Пройти по всем ключам словаря
+                foreach (var key in teamAssignments.Keys.ToList())
+                {
+                    // Отфильтровать подсписки, оставив только те, где количество элементов >= 3
+                    teamAssignments[key] = teamAssignments[key]
+                        .Where(sublist => sublist.Count >= 3)
+                        .ToList();
+                }
                 // Сохраняем все команды
                 foreach (var team in teamAssignments)
                 {

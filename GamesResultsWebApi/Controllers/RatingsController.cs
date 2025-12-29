@@ -253,6 +253,9 @@ namespace BowlingStatistic.Api.Controllers
                         .Where(r => r.TournamentCount > 0)
                         .AverageAsync(r => (double?)r.TournamentCount) ?? 0,
 
+                    // История изменений рейтингов
+                    TotalRatingChanges = await _context.RatingHistories.CountAsync(),
+
                     // Даты
                     LastUpdated = await _context.PlayerRatings
                         .MaxAsync(r => (DateTime?)r.LastUpdated) ?? DateTime.MinValue,
@@ -840,6 +843,13 @@ namespace BowlingStatistic.Api.Controllers
         public int LowestRating { get; set; }
         public double MedianRating { get; set; }
 
+        // История изменений
+        public int TotalRatingChanges { get; set; }
+
+        // Статистика турниров
+        public int TournamentsProcessed { get; set; }
+        public double AverageTournamentsPerPlayer { get; set; }
+
         // Распределения
         public Dictionary<string, int> RatingDistribution { get; set; } = new();
         public Dictionary<string, int> TournamentDistribution { get; set; } = new();
@@ -849,10 +859,6 @@ namespace BowlingStatistic.Api.Controllers
 
         // Статистика по полу
         public GenderStatisticsDto GenderStatistics { get; set; } = new();
-
-        // Турниры
-        public int TournamentsProcessed { get; set; }
-        public double AverageTournamentsPerPlayer { get; set; }
 
         // Даты
         public DateTime LastUpdated { get; set; }

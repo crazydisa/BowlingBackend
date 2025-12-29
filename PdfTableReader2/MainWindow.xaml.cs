@@ -39,7 +39,7 @@ namespace PdfTableReader2
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             var reader = new PdfTableReader();
-            var allTables = await reader.GetAllTablesFromPdf(@"C:\Projects\BowlingBackend\pdf\chufo_tumen_2023 (1) (1) (2)-005.pdf");
+            var allTables = await reader.GetAllTablesFromPdf(@"C:\Projects\BowlingBackend\pdf\chufo_tumen_2023 (1) (1) (2)-003.pdf");
             //foreach (var table in allTables)
             //{
                 foreach(var result in allTables[0])
