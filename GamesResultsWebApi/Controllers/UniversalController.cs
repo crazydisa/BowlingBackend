@@ -272,11 +272,63 @@ namespace GamesResults.Controllers.Upload
                     {
                         BaseTournamentResult participation=null;
                         // Проверяем, является ли результат командным
+                        // Вместо текущего кода обработки команды (строки 208-290) используйте следующий:
+
                         if (playerResult.IsTeam && !string.IsNullOrWhiteSpace(playerResult.TeamName))
                         {
                             // ========== ОБРАБОТКА КОМАНД ==========
 
-                            // 1. Поиск или создание команды
+                            // 1. Собираем всех участников команды из всех таблиц
+                            var allTeamMembers = new List<PlayerDto>();
+
+                            // Добавляем капитана
+                            allTeamMembers.Add(new PlayerDto
+                            {
+                                Name = playerResult.FullName,
+                                // Сохраняем данные капитана
+                                GameScores = new[]
+                                {
+                                    playerResult.Game1,
+                                    playerResult.Game2,
+                                    playerResult.Game3,
+                                    playerResult.Game4,
+                                    playerResult.Game5,
+                                    playerResult.Game6
+                                },
+                                Total = playerResult.Total,
+                                Average = playerResult.Average
+                            });
+
+                            // Добавляем остальных участников из TeamMembers
+                            for (int i = 0; i < playerResult.TeamMembers.Count; i++)
+                            {
+                                var memberName = playerResult.TeamMembers[i];
+
+                                // Ищем результаты этого участника во всех таблицах
+                                var memberResult = allPlayers.FirstOrDefault(p =>
+                                    p.FullName?.Trim() == memberName?.Trim());
+
+                                if (memberResult != null)
+                                {
+                                    allTeamMembers.Add(new PlayerDto
+                                    {
+                                        Name = memberName,
+                                        GameScores = new[]
+                                        {
+                                            memberResult.Game1,
+                                            memberResult.Game2,
+                                            memberResult.Game3,
+                                            memberResult.Game4,
+                                            memberResult.Game5,
+                                            memberResult.Game6
+                                        },
+                                        Total = memberResult.Total,
+                                        Average = memberResult.Average
+                                    });
+                                }
+                            }
+
+                            // 2. Поиск или создание команды
                             var team = await nsContext.Teams
                                 .FirstOrDefaultAsync(t =>
                                     t.Name == playerResult.TeamName &&
@@ -292,118 +344,178 @@ namespace GamesResults.Controllers.Upload
                                     CreatedAt = DateTime.UtcNow
                                 };
                                 nsContext.Teams.Add(team);
-
-                                // Нужно сохранить, чтобы получить Id команды
                                 await nsContext.SaveChangesAsync();
                             }
-                            // Проверяем, не добавлен ли уже этот игрок
-                            var existingMember = await nsContext.TeamMembers
-                                .FirstOrDefaultAsync(tm => tm.TeamId == team.Id && tm.PlayerId == bdPlayer.Id);
 
-                            if (existingMember != null)
-                            {
-                                continue; //Участник уже есть в команде
-                            } 
-                                // 2. Добавление игрока в команду как капитана
-                                var teamMember = new TeamMember
-                            {
-                                TeamId = team.Id,
-                                PlayerId = bdPlayer.Id,
-                                IsCaptain = true,
-                                Role = TeamMemberRole.Captain,
-                                OrderNumber = 1,
-                                JoinedDate = DateTime.UtcNow,
-                                CreatedAt = DateTime.UtcNow
-                            };
-                            nsContext.TeamMembers.Add(teamMember);
-                            await nsContext.SaveChangesAsync();
-                            // 3. Добавление других участников команды (если есть в TeamMembers)
-                            for (int i = 0; i < playerResult.TeamMembers.Count; i++)
-                            {
-                                var memberName = playerResult.TeamMembers[i];
-                                var memberIdStr = playerResult.TeamMemberIds.ElementAtOrDefault(i);
+                            // 3. Добавление всех участников команды
+                            var teamMembersProcessed = new HashSet<long>();
 
-                                // Поиск игрока-участника команды
+                            foreach (var memberData in allTeamMembers)
+                            {
+                                // Поиск или создание игрока
                                 var memberPlayer = await FindOrCreatePlayerAsync(
-                                    memberName,
+                                    memberData.Name,
                                     nsContext,
                                     districtsCache,
                                     playersCache);
-                                if (memberPlayer == null) continue;
+
+                                if (memberPlayer == null || teamMembersProcessed.Contains(memberPlayer.Id))
+                                    continue;
+                                // Если это новый игрок, сохраняем его сразу
                                 if (memberPlayer.Id == 0)
                                 {
-                                    //_logger.LogError("PlayerId = 0 для игрока: {Name}", bdPlayer.Name);
-
-                                    // Пытаемся найти игрока в БД
-                                    var savedPlayer = await nsContext.Players
-                                        .FirstOrDefaultAsync(p => p.Name == memberPlayer.Name);
-
-                                    if (savedPlayer == null)
-                                    {
-                                        // Сохраняем игрока
-                                        await nsContext.SaveChangesAsync();
-                                        savedPlayer = memberPlayer;
-                                    }
-
-                                    memberPlayer = savedPlayer;
+                                    await nsContext.SaveChangesAsync();
                                 }
-                                if (memberPlayer != null)
-                                {
-                                    // Проверяем, не добавлен ли уже этот игрок
-                                     existingMember = await nsContext.TeamMembers
-                                        .FirstOrDefaultAsync(tm => tm.TeamId == team.Id && tm.PlayerId == memberPlayer.Id);
+                                // Проверяем, не добавлен ли уже этот игрок в команду
+                                var existingMember = await nsContext.TeamMembers
+                                    .FirstOrDefaultAsync(tm => tm.TeamId == team.Id && tm.PlayerId == memberPlayer.Id);
 
-                                    if (existingMember == null)
+                                if (existingMember == null)
+                                {
+                                    var teamMember = new TeamMember
                                     {
-                                        var member = new TeamMember
-                                        {
-                                            TeamId = team.Id,
-                                            PlayerId = memberPlayer.Id,
-                                            IsCaptain = false,
-                                            Role = TeamMemberRole.Member,
-                                            OrderNumber = i + 2,
-                                            JoinedDate = DateTime.UtcNow,
-                                            CreatedAt = DateTime.UtcNow
-                                        };
-                                        nsContext.TeamMembers.Add(member);
-                                        await nsContext.SaveChangesAsync();
-                                    }
+                                        TeamId = team.Id,
+                                        PlayerId = memberPlayer.Id,
+                                        IsCaptain = (memberData.Name == playerResult.FullName),
+                                        Role = (memberData.Name == playerResult.FullName) ?
+                                            TeamMemberRole.Captain : TeamMemberRole.Member,
+                                        OrderNumber = teamMembersProcessed.Count + 1,
+                                        JoinedDate = DateTime.UtcNow,
+                                        CreatedAt = DateTime.UtcNow
+                                    };
+                                    nsContext.TeamMembers.Add(teamMember);
+                                }
+
+                                teamMembersProcessed.Add(memberPlayer.Id);
+                            }
+
+                            await nsContext.SaveChangesAsync();
+
+                            // 4. Проверяем, существует ли уже результат для этой команды
+                            var existingTeamResult = await nsContext.TeamResults
+                                .FirstOrDefaultAsync(tr =>
+                                    tr.TournamentId == turnir.Id &&
+                                    tr.TeamId == team.Id);
+
+                            if (existingTeamResult != null)
+                            {
+                                continue; // Результат уже существует, пропускаем
+                            }
+
+                            // 5. АГРЕГАЦИЯ РЕЗУЛЬТАТОВ КОМАНДЫ
+                            // Собираем все результаты участников этой команды
+                            var allTeamResults = new List<PlayerResult>();
+
+                            // Ищем капитана
+                            var captainResult = allPlayers.FirstOrDefault(p =>
+                                p.FullName?.Trim() == playerResult.FullName?.Trim() &&
+                                p.TeamName?.Trim() == playerResult.TeamName?.Trim());
+
+                            if (captainResult != null)
+                            {
+                                allTeamResults.Add(captainResult);
+                            }
+
+                            // Ищем остальных участников команды
+                            foreach (var memberName in playerResult.TeamMembers)
+                            {
+                                var memberResult = allPlayers.FirstOrDefault(p =>
+                                    p.FullName?.Trim() == memberName?.Trim() &&
+                                    p.TeamName?.Trim() == playerResult.TeamName?.Trim());
+
+                                if (memberResult != null)
+                                {
+                                    allTeamResults.Add(memberResult);
                                 }
                             }
-                            //nsContext.TeamMembers.Add(teamMember);
-                            // 4. Создание КОМАНДНОГО результата
+
+                            // Если не нашли участников по TeamName, ищем просто по имени
+                            if (!allTeamResults.Any())
+                            {
+                                allTeamResults = allPlayers
+                                    .Where(p => p.TeamName?.Trim() == playerResult.TeamName?.Trim())
+                                    .ToList();
+                            }
+
+                            // 6. Расчет командных показателей на основе ВСЕХ участников
+                            decimal teamTotal = 0;
+                            decimal teamAverage = 0;
+                            int totalGamesPlayed = 0;
+                            var allGameScores = new List<int>();
+                            var memberScores = new Dictionary<long, int>();
+
+                            foreach (var teamMemberResult in allTeamResults)
+                            {
+                                // Находим игрока в БД
+                                var teamPlayer = await FindOrCreatePlayerAsync(
+                                    teamMemberResult.FullName,
+                                    nsContext,
+                                    districtsCache,
+                                    playersCache);
+
+                                if (teamPlayer == null) continue;
+
+                                // Добавляем баллы игрока
+                                memberScores[teamPlayer.Id] = teamMemberResult.Total;
+
+                                // Суммируем общие показатели
+                                teamTotal += teamMemberResult.Total;
+                                teamAverage += (decimal)teamMemberResult.Average;
+                                totalGamesPlayed += teamMemberResult.PlayedGamesCount;
+
+                                // Собираем все игровые очки
+                                var memberGameScores = new[]
+                                {
+            teamMemberResult.Game1,
+            teamMemberResult.Game2,
+            teamMemberResult.Game3,
+            teamMemberResult.Game4,
+            teamMemberResult.Game5,
+            teamMemberResult.Game6
+        };
+                                allGameScores.AddRange(memberGameScores.Where(score => score > 0));
+                            }
+
+                            // Рассчитываем средние значения
+                            if (allTeamResults.Any())
+                            {
+                                teamAverage = teamAverage / allTeamResults.Count;
+                            }
+
+                            // 7. Создание КОМАНДНОГО результата
                             var teamResult = new TeamResult
                             {
                                 TournamentId = turnir.Id,
                                 TeamId = team.Id,
-                                Place = playerResult.Place,
-                                TotalScore = playerResult.Total,
-                                AverageScore = (decimal)playerResult.Average,
-                                GamesPlayed = playerResult.PlayedGamesCount,
+                                Place = playerResult.Place, // Используем место из данных капитана
+                                TotalScore = (int)teamTotal,
+                                AverageScore = teamAverage,
+                                GamesPlayed = totalGamesPlayed,
                                 ResultDate = DateTime.UtcNow,
-                                Notes = $"Команда: {playerResult.TeamName}, Капитан: {bdPlayer.Name}"
+                                Notes = $"Команда: {playerResult.TeamName}, Участников: {allTeamResults.Count}"
                             };
 
-                            // Сохраняем результаты игр как JSON
-                            var gameScores = new[]
+                            // Сохраняем агрегированные результаты игр как JSON
+                            // Можно сохранить средние значения по играм или все очки
+                            var averageGameScores = new List<decimal>();
+                            for (int i = 0; i < 6; i++)
                             {
-                                playerResult.Game1,
-                                playerResult.Game2,
-                                playerResult.Game3,
-                                playerResult.Game4,
-                                playerResult.Game5,
-                                playerResult.Game6
-                            };
-                            teamResult.GameScoresJson = JsonSerializer.Serialize(gameScores);
+                                var gameScores = allTeamResults
+                                    .Where(r => r.GetGameScore(i) > 0)
+                                    .Select(r => r.GetGameScore(i))
+                                    .ToList();
 
-                            // Сохраняем баллы участников команды
-                            var memberScores = new Dictionary<long, int>();
+                                if (gameScores.Any())
+                                {
+                                    averageGameScores.Add((decimal)gameScores.Average());
+                                }
+                                else
+                                {
+                                    averageGameScores.Add(0);
+                                }
+                            }
 
-                            // Добавляем баллы капитана
-                            memberScores[bdPlayer.Id] = playerResult.Total;
-
-                            // Добавляем баллы остальных участников (если известны)
-                            // В реальном парсинге нужно извлекать их результаты
+                            teamResult.GameScoresJson = JsonSerializer.Serialize(averageGameScores);
                             teamResult.MemberScoresJson = JsonSerializer.Serialize(memberScores);
 
                             participation = teamResult;
@@ -555,6 +667,7 @@ namespace GamesResults.Controllers.Upload
 
             return new string(words.Select(w => w[0]).ToArray()).ToUpper();
         }
+
         // GET: api/Tournaments/{TournamentId}/documents
         [HttpGet("/documents")]
         public IActionResult GetReportStream(long TournamentId)
@@ -583,5 +696,28 @@ namespace GamesResults.Controllers.Upload
                 document.OriginalFileName);
         }
     }
-
+    public static class PlayerResultExtensions
+    {
+        public static int GetGameScore(this PlayerResult playerResult, int gameIndex)
+        {
+            return gameIndex switch
+            {
+                0 => playerResult.Game1,
+                1 => playerResult.Game2,
+                2 => playerResult.Game3,
+                3 => playerResult.Game4,
+                4 => playerResult.Game5,
+                5 => playerResult.Game6,
+                _ => 0
+            };
+        }
+        
+    }
+    public class PlayerDto
+    {
+        public string Name { get; set; }
+        public int[] GameScores { get; set; }
+        public int Total { get; set; }
+        public double Average { get; set; }
+    }
 }

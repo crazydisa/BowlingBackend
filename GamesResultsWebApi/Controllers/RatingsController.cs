@@ -65,7 +65,7 @@ namespace BowlingStatistic.Api.Controllers
                 {
                     baseQuery = baseQuery.Where(r =>
                         r.Player.District != null &&
-                        r.Player.District.Name.Contains(query.Region));
+                        r.Player.District.Title.Contains(query.Region));
                 }
 
                 if (query.Gender.HasValue && query.Gender.Value != Gender.Unknown)
@@ -116,7 +116,7 @@ namespace BowlingStatistic.Api.Controllers
                     .Select(r => new PlayerRankingDto
                     {
                         Id = r.PlayerId,
-                        FullName = r.Player.FullName,
+                        FullName = r.Player.Name,
                         Region = r.Player.District != null ? r.Player.District.Name : null,
                         Gender = r.Player.Gender,
                         Rating = r.Rating,
