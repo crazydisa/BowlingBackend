@@ -126,6 +126,7 @@ namespace GamesResults.Controllers.Upload
                     city = new City
                     {
                         Title = cityName,
+                        Name = cityName,
                         CreatedAt = DateTime.UtcNow
                     };
                     nsContext.Cities.Add(city);
@@ -230,6 +231,7 @@ namespace GamesResults.Controllers.Upload
                                 bdDistrict = new District
                                 {
                                     Title = regionName,
+                                    Name = regionName,
                                     CreatedAt = DateTime.UtcNow
                                 };
                                 nsContext.Districts.Add(bdDistrict);
@@ -271,9 +273,8 @@ namespace GamesResults.Controllers.Upload
                     if (bdPlayer != null)
                     {
                         BaseTournamentResult participation=null;
-                        // Проверяем, является ли результат командным
-                        // Вместо текущего кода обработки команды (строки 208-290) используйте следующий:
 
+                        // Проверяем, является ли результат командным
                         if (playerResult.IsTeam && !string.IsNullOrWhiteSpace(playerResult.TeamName))
                         {
                             // ========== ОБРАБОТКА КОМАНД ==========
@@ -466,13 +467,13 @@ namespace GamesResults.Controllers.Upload
                                 // Собираем все игровые очки
                                 var memberGameScores = new[]
                                 {
-            teamMemberResult.Game1,
-            teamMemberResult.Game2,
-            teamMemberResult.Game3,
-            teamMemberResult.Game4,
-            teamMemberResult.Game5,
-            teamMemberResult.Game6
-        };
+                                    teamMemberResult.Game1,
+                                    teamMemberResult.Game2,
+                                    teamMemberResult.Game3,
+                                    teamMemberResult.Game4,
+                                    teamMemberResult.Game5,
+                                    teamMemberResult.Game6
+                                };
                                 allGameScores.AddRange(memberGameScores.Where(score => score > 0));
                             }
 

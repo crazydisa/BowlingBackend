@@ -87,7 +87,16 @@ namespace BowlingStatistic.Api.Controllers
                 {
                     baseQuery = baseQuery.Where(r => r.Rating <= query.MaxRating.Value);
                 }
+                // ПОИСК ПО ИГРОКУ (имя, фамилия, отчество)
+                if (!string.IsNullOrEmpty(query.Search))
+                {
+                    var searchTerm = query.Search.Trim().ToLower();
 
+                    baseQuery = baseQuery.Where(r =>
+                        r.Player.Title.ToLower().Contains(searchTerm) ||
+                        r.Player.FullName.ToLower().Contains(searchTerm) ||
+                        r.Player.Name.ToLower().Contains(searchTerm));
+                }
                 // Сортировка
                 var orderedQuery = query.SortBy switch
                 {
@@ -117,7 +126,7 @@ namespace BowlingStatistic.Api.Controllers
                     {
                         Id = r.PlayerId,
                         FullName = r.Player.Name,
-                        Region = r.Player.District != null ? r.Player.District.Name : null,
+                        Region = r.Player.District != null ? r.Player.District.Title : null,
                         Gender = r.Player.Gender,
                         Rating = r.Rating,
                         PeakRating = r.PeakRating,
@@ -138,10 +147,17 @@ namespace BowlingStatistic.Api.Controllers
                     p.Place = (query.Page - 1) * query.PageSize + index + 1;
                     return p;
                 }).ToList();
-
+                // Сортировка
+                var orderedRankedPlayers = query.SortBy switch
+                {
+                    "place" => query.Descending
+                        ? rankedPlayers.OrderByDescending(r => r.Place)
+                        : rankedPlayers.OrderByDescending(r => r.Place),
+                    _ => rankedPlayers.OrderBy(r => r.Place)
+                };
                 var result = new GlobalRankingsDto
                 {
-                    Players = rankedPlayers,
+                    Players = orderedRankedPlayers.ToList(),
                     TotalCount = totalCount,
                     Page = query.Page,
                     PageSize = query.PageSize,
